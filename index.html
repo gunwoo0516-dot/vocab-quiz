@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v5 · 즉시 자동 채점</div>
+      <div class="subtitle">Firebase sync v6 · 빈 답 오답 처리</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -1506,13 +1506,11 @@ mortgage / 담보 대출"></textarea>
       if (!w) return;
 
       const input = $("selfAnswer").value;
-      if (!normalize(input)) {
-        toast("답을 입력해줘");
-        $("selfAnswer").focus();
-        return;
-      }
 
-      const isCorrect = isAutoAnswerCorrect(w, session.currentDirection, input);
+      // 답을 비워둔 상태에서 Enter/채점을 누르면 모르는 문제로 보고 오답 처리.
+      const isCorrect = normalize(input)
+        ? isAutoAnswerCorrect(w, session.currentDirection, input)
+        : false;
 
       $("answerBox").classList.add("show");
       $("showAnswerBtn").disabled = true;

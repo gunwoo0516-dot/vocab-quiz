@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v7 · 답 확인 후 다음 문제</div>
+      <div class="subtitle">Firebase sync v8 · 채점 후 답 고정</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -1391,7 +1391,8 @@ mortgage / 담보 대출"></textarea>
         wrong: 0,
         currentId: null,
         currentDirection: null,
-        answerShown: false
+        answerShown: false,
+        graded: false
       };
 
       $("quizEmpty").style.display = "none";
@@ -1421,6 +1422,7 @@ mortgage / 담보 대출"></textarea>
 
       session.currentId = session.queue.shift();
       session.answerShown = false;
+      session.graded = false;
 
       const mode = $("modeSelect").value;
       if (mode === "mixed") {
@@ -1442,6 +1444,7 @@ mortgage / 담보 대출"></textarea>
       $("answerBox").innerHTML = answerHtml(w, session.currentDirection);
       $("answerBox").classList.remove("show");
       $("selfAnswer").value = "";
+      $("selfAnswer").disabled = false;
       $("autoGradeBox").textContent = "";
       $("autoGradeBox").className = "auto-grade";
       $("showAnswerBtn").disabled = false;
@@ -1450,8 +1453,9 @@ mortgage / 담보 대출"></textarea>
       $("nextQuestionBtn").style.display = "none";
       $("correctBtn").disabled = true;
       $("wrongBtn").disabled = true;
-      session.awaitingNext = false;
       updateProgress();
+
+      setTimeout(() => $("selfAnswer").focus(), 0);
     }
 
     function showAnswer() {
@@ -1504,9 +1508,10 @@ mortgage / 담보 대출"></textarea>
     }
 
     async function autoGradeCurrentAnswer() {
-      if (!session || !session.currentId) return;
+      if (!session || !session.currentId || !currentUser) return;
 
-      if (session.awaitingNext) {
+      // 이미 채점한 상태에서 Enter/채점을 다시 누르면 다음 문제로 이동.
+      if (session.graded) {
         goToNextAfterAnswer();
         return;
       }
@@ -1516,14 +1521,17 @@ mortgage / 담보 대출"></textarea>
 
       const input = $("selfAnswer").value;
 
-      // 답을 비워둔 상태에서 Enter/채점을 누르면 모르는 문제로 보고 오답 처리.
+      // 빈 답은 오답 처리.
       const isCorrect = normalize(input)
         ? isAutoAnswerCorrect(w, session.currentDirection, input)
         : false;
 
+      // 먼저 화면에 결과와 실제 답을 고정해서 보여줌.
       $("answerBox").classList.add("show");
+      $("selfAnswer").disabled = true;
       $("showAnswerBtn").disabled = true;
-      $("autoGradeBtn").disabled = true;
+      $("autoGradeBtn").disabled = false;
+      $("autoGradeBtn").textContent = "다음 문제";
       $("nextQuestionBtn").disabled = false;
       $("nextQuestionBtn").style.display = "block";
 
@@ -1533,11 +1541,12 @@ mortgage / 담보 대출"></textarea>
         ? "정답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감."
         : "오답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감.";
 
-      await grade(isCorrect, false);
-      session.awaitingNext = true;
+      // 기록만 하고, nextQuestion은 절대 호출하지 않음.
+      await recordGrade(isCorrect);
+      session.graded = true;
     }
 
-    async function grade(isCorrect, moveNext = true) {
+    async function recordGrade(isCorrect) {
       if (!session || !session.currentId || !currentUser) return;
 
       const w = words.find(x => x.id === session.currentId);
@@ -1556,12 +1565,19 @@ mortgage / 담보 대출"></textarea>
       session.done += 1;
 
       await saveWordToCloud(updated);
-      if (moveNext) nextQuestion();
     }
 
     function goToNextAfterAnswer() {
       if (!session) return;
-      session.awaitingNext = false;
+
+      if (!session.graded) {
+        // 아직 채점하지 않은 상태에서 다음 문제 버튼을 누르면 빈 답 오답 처리.
+        autoGradeCurrentAnswer();
+        return;
+      }
+
+      $("autoGradeBtn").textContent = "채점";
+      session.graded = false;
       nextQuestion();
     }
 
@@ -1861,6 +1877,13 @@ mortgage / 담보 대출"></textarea>
         if (e.key === "Enter") {
           e.preventDefault();
           autoGradeCurrentAnswer();
+        }
+      });
+
+      document.addEventListener("keydown", e => {
+        if (e.key === "Enter" && session && session.graded) {
+          e.preventDefault();
+          goToNextAfterAnswer();
         }
       });
       $("showAnswerBtn").addEventListener("click", showAnswer);

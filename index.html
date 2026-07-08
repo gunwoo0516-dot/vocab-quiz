@@ -1,153 +1,1720 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Vocab Quiz Firebase Sync</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Vocab Quiz Firebase Sync v2</title>
   <style>
-    :root{--bg:#f5f6f8;--card:#fff;--text:#15171a;--sub:#667085;--line:#e5e7eb;--p:#2563eb;--g:#16a34a;--d:#dc2626;--w:#f59e0b;--r:18px}
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;line-height:1.5}
-    .app{width:min(960px,100%);margin:0 auto;padding:16px 16px 72px} h1{margin:12px 0 4px;font-size:28px;letter-spacing:-.04em}.sub{color:var(--sub);font-size:14px}
-    .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:sticky;top:0;background:rgba(245,246,248,.93);backdrop-filter:blur(8px);z-index:3;padding:10px 0}
-    button{border:0;border-radius:13px;padding:12px 14px;font-size:15px;font-weight:800;cursor:pointer;background:#e5e7eb;color:#111827}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--p);color:white}.good{background:var(--g);color:white}.danger{background:var(--d);color:white}.warn{background:var(--w);color:white}.ghost{background:white;border:1px solid var(--line)}.tab{background:white;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:10px 6px}.tab.active{background:var(--p);color:#fff;border-color:var(--p)}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:14px 0;box-shadow:0 10px 30px rgba(15,23,42,.08)}h2{margin:0 0 12px;font-size:20px;letter-spacing:-.03em}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}input,textarea,select{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px 14px;font-size:16px;background:white;outline:0}textarea{min-height:130px;resize:vertical}input:focus,textarea:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
-    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.hint{color:var(--sub);font-size:13px;margin-top:8px}.status{display:inline-flex;margin-top:8px;padding:7px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:13px;font-weight:800}.status.ok{background:#dcfce7;color:#166534}.status.bad{background:#fee2e2;color:#991b1b}.section{display:none}.section.active{display:block}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.stat{background:#f8fafc;border:1px solid var(--line);border-radius:15px;padding:12px}.num{font-size:22px;font-weight:900}.name{color:var(--sub);font-size:12px;font-weight:700}
-    .word-list{display:grid;gap:8px;margin-top:12px}.word-item{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:white;border:1px solid var(--line);border-radius:15px;padding:12px}.word-title{font-size:16px;font-weight:900;word-break:break-word}.word-meaning{color:var(--sub);font-size:14px;word-break:break-word}.mini{color:var(--sub);font-size:12px;margin-top:4px}.empty{text-align:center;color:var(--sub);border:1px dashed #cbd5e1;border-radius:16px;padding:28px 12px;background:white}.badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;font-weight:900}.q{text-align:center}.question{margin:18px 0 6px;font-size:clamp(30px,8vw,54px);font-weight:950;letter-spacing:-.05em;word-break:break-word}.answer{display:none;margin:18px auto 4px;padding:16px;background:#f8fafc;border:1px solid var(--line);border-radius:16px;max-width:620px;font-size:22px;font-weight:900;word-break:break-word}.answer.show{display:block}.big{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}.big button{padding:16px;font-size:17px}.bar{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin:10px 0 16px}.progress{height:100%;width:0;background:var(--p);transition:.2s}
-    table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:12px 8px;text-align:left;vertical-align:top}th{background:#f8fafc;color:var(--sub);font-size:12px}.pill{display:inline-block;border-radius:999px;padding:4px 8px;background:#f1f5f9;color:#475569;font-size:12px;font-weight:800}code{background:#f1f5f9;border-radius:6px;padding:2px 5px}.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);width:calc(100% - 36px);max-width:520px;background:#111827;color:white;border-radius:14px;padding:13px 14px;font-weight:800;display:none;z-index:9;text-align:center}.toast.show{display:block}
-    @media(max-width:700px){.app{padding:14px 14px 72px}.row{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.word-item{grid-template-columns:1fr}.tabs{gap:6px}.tab{font-size:13px}th:nth-child(2),td:nth-child(2){display:none}}
+    :root {
+      --bg: #f5f6f8;
+      --card: #ffffff;
+      --text: #15171a;
+      --sub: #667085;
+      --line: #e5e7eb;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --danger: #dc2626;
+      --good: #16a34a;
+      --warn: #f59e0b;
+      --soft: #eef2ff;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .app {
+      width: min(1080px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+      padding-bottom: 72px;
+    }
+
+    header { padding: 16px 2px 10px; }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(245, 246, 248, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 8px 0;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--sub);
+      border-radius: 999px;
+      padding: 11px 8px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin: 14px 0;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    label {
+      display: block;
+      font-weight: 800;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 13px 14px;
+      font-size: 16px;
+      background: #fff;
+      outline: none;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    textarea {
+      min-height: 132px;
+      resize: vertical;
+    }
+
+    .hint {
+      color: var(--sub);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #475569;
+      margin-top: 8px;
+    }
+
+    .status.ok { background: #dcfce7; color: #166534; }
+    .status.warn { background: #fef3c7; color: #92400e; }
+    .status.bad { background: #fee2e2; color: #991b1b; }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    button.primary { background: var(--primary); color: white; }
+    button.primary:hover { background: var(--primary-dark); }
+    button.good { background: var(--good); color: white; }
+    button.danger { background: var(--danger); color: white; }
+    button.warn { background: var(--warn); color: white; }
+    button.ghost { background: transparent; border: 1px solid var(--line); }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+    }
+
+    .stat .num {
+      font-weight: 900;
+      font-size: 22px;
+    }
+
+    .stat .name {
+      color: var(--sub);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .word-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .word-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .word-title {
+      font-weight: 900;
+      font-size: 16px;
+      word-break: break-word;
+    }
+
+    .word-meaning {
+      color: var(--sub);
+      font-size: 14px;
+      margin-top: 2px;
+      word-break: break-word;
+    }
+
+    .meaning-parts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 7px;
+    }
+
+    .meaning-chip {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mini {
+      color: var(--sub);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .quiz-box {
+      text-align: center;
+      padding: 14px 2px 8px;
+    }
+
+    .progress-wrap {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 16px;
+    }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.2s;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--soft);
+      color: #3730a3;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .question {
+      margin: 18px 0 6px;
+      font-size: clamp(30px, 8vw, 54px);
+      font-weight: 950;
+      letter-spacing: -0.05em;
+      word-break: break-word;
+    }
+
+    .question-sub {
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    .answer {
+      display: none;
+      margin: 18px auto 4px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      max-width: 680px;
+      font-size: 22px;
+      font-weight: 900;
+      word-break: break-word;
+    }
+
+    .answer.show { display: block; }
+
+    .answer .meaning-chip {
+      font-size: 15px;
+      padding: 7px 10px;
+      margin: 3px;
+    }
+
+    .big-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .big-buttons button {
+      padding: 16px;
+      font-size: 17px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--sub);
+      font-size: 12px;
+      background: #f8fafc;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .empty {
+      text-align: center;
+      color: var(--sub);
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 28px 12px;
+      background: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      width: calc(100% - 36px);
+      max-width: 520px;
+      background: #111827;
+      color: white;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-weight: 800;
+      display: none;
+      z-index: 99;
+      text-align: center;
+    }
+
+    .toast.show { display: block; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .danger-zone {
+      border-color: rgba(220,38,38,.25);
+      background: #fff7f7;
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .pill.day {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .pill.weak {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    code {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 2px 5px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 780px) {
+      .app {
+        padding: 14px;
+        padding-bottom: 72px;
+      }
+
+      .tabs {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+      }
+
+      .row, .row3 { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+
+      .tab {
+        padding: 10px 4px;
+        font-size: 12px;
+      }
+
+      .card { padding: 15px; }
+
+      .word-item {
+        grid-template-columns: 1fr;
+      }
+
+      .word-item .btns { margin-top: 0; }
+
+      table { font-size: 13px; }
+
+      th:nth-child(2), td:nth-child(2) {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
-<div class="app">
-  <h1>Vocab Quiz</h1>
-  <div class="sub">Firebase sync version · PC와 폰에서 같은 계정으로 sync</div>
-  <div id="syncStatus" class="status">Firebase 설정 필요</div>
+  <div class="app">
+    <header>
+      <h1>Vocab Quiz</h1>
+      <div class="subtitle">Firebase sync v2 · login 유지 · Day quiz · Weak words · Search</div>
+      <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
+    </header>
 
-  <nav class="tabs">
-    <button class="tab active" data-tab="login">Login</button>
-    <button class="tab" data-tab="words">단어</button>
-    <button class="tab" data-tab="quiz">Quiz</button>
-    <button class="tab" data-tab="result">Result</button>
-  </nav>
+    <nav class="tabs">
+      <button class="tab active" data-tab="login">Login</button>
+      <button class="tab" data-tab="words">단어</button>
+      <button class="tab" data-tab="quiz">Quiz</button>
+      <button class="tab" data-tab="weak">Weak</button>
+      <button class="tab" data-tab="result">Result</button>
+    </nav>
 
-  <section id="login" class="section active">
-    <div class="card">
-      <h2>Login</h2>
-      <div id="configWarning" class="empty">index.html 안의 <code>firebaseConfig</code>를 먼저 채워야 sync가 동작함.</div>
-      <div id="authPanel" style="display:none">
+    <section id="login" class="section active">
+      <div class="card">
+        <h2>Login</h2>
+        <div id="configWarning" class="empty">
+          index.html 안의 <code>firebaseConfig</code>를 먼저 채워야 sync가 동작함.
+        </div>
+
+        <div id="authPanel" style="display:none">
+          <div class="row">
+            <div>
+              <label for="emailInput">Email</label>
+              <input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email" />
+            </div>
+            <div>
+              <label for="passwordInput">Password</label>
+              <input id="passwordInput" type="password" placeholder="6자 이상" autocomplete="current-password" />
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="primary" id="signInBtn">Login</button>
+            <button class="ghost" id="signUpBtn">Sign up</button>
+            <button class="danger" id="signOutBtn" style="display:none">Logout</button>
+          </div>
+
+          <div class="hint" id="userInfo">로그인 필요</div>
+          <div class="hint">로그인은 browser에 유지됨. 같은 email/password로 PC와 폰에서 같은 단어장을 볼 수 있음.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="words" class="section">
+      <div class="card">
+        <h2>단어 추가</h2>
+        <div class="row3">
+          <div>
+            <label for="wordInput">English word</label>
+            <input id="wordInput" placeholder="예: frugal" autocomplete="off" />
+          </div>
+          <div>
+            <label for="meaningInput">뜻</label>
+            <input id="meaningInput" placeholder="예: 절약하는 / 검소한" autocomplete="off" />
+          </div>
+          <div>
+            <label for="dayInput">Day</label>
+            <input id="dayInput" type="number" min="1" value="1" />
+          </div>
+        </div>
+        <div class="hint">뜻에 <code>/</code>를 넣으면 뜻을 chip 형태로 나눠서 보여줌. 예: <code>입출금 내역서 / 성명 / 진술</code></div>
+        <div class="btns">
+          <button class="primary require-auth" id="addBtn">추가</button>
+          <button class="ghost require-auth" id="restoreBtn">기본 단어 복원</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>여러 개 한 번에 추가</h2>
         <div class="row">
-          <div><label>Email</label><input id="emailInput" type="email" placeholder="you@example.com" autocomplete="email"></div>
-          <div><label>Password</label><input id="passwordInput" type="password" placeholder="6자 이상" autocomplete="current-password"></div>
+          <div>
+            <label for="bulkDayInput">Bulk Day</label>
+            <input id="bulkDayInput" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label for="bulkFormatHint">지원 format</label>
+            <input id="bulkFormatHint" value="frugal / 절약하는" disabled />
+          </div>
+        </div>
+        <textarea id="bulkInput" placeholder="한 줄에 하나씩 입력
+
+예:
+frugal / 절약하는
+cut down on / 줄이다
+mortgage / 담보 대출"></textarea>
+        <div class="hint">각 줄에 Day를 직접 넣고 싶으면 <code>Day 2: word / 뜻</code> 형태도 가능.</div>
+        <div class="btns">
+          <button class="primary require-auth" id="bulkBtn">Bulk 추가</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>내 단어장</h2>
+        <div class="row3">
+          <div>
+            <label for="searchInput">Search</label>
+            <input id="searchInput" placeholder="word, 뜻, Day 검색" autocomplete="off" />
+          </div>
+          <div>
+            <label for="dayFilter">Day filter</label>
+            <select id="dayFilter">
+              <option value="all">전체 Day</option>
+            </select>
+          </div>
+          <div>
+            <label for="sortSelect">Sort</label>
+            <select id="sortSelect">
+              <option value="day">Day 순</option>
+              <option value="wrong">오답 많은 순</option>
+              <option value="word">Word A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="num" id="totalWords">0</div>
+            <div class="name">전체 단어</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="totalWrong">0</div>
+            <div class="name">누적 오답</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="hardWords">0</div>
+            <div class="name"><span id="hardWordsLabel">n회 이상 오답</span></div>
+          </div>
+          <div class="stat">
+            <div class="num" id="totalAsked">0</div>
+            <div class="name">누적 출제</div>
+          </div>
         </div>
         <div class="btns">
-          <button class="primary" id="signInBtn">Login</button>
-          <button class="ghost" id="signUpBtn">Sign up</button>
-          <button class="danger" id="signOutBtn" style="display:none">Logout</button>
+          <button class="ghost" id="exportBtn">Export</button>
+          <button class="ghost require-auth" id="importBtn">Import</button>
+          <input type="file" id="importFile" accept="application/json" style="display:none" />
         </div>
-        <div class="hint" id="userInfo">로그인 필요</div>
+        <div id="wordList" class="word-list"></div>
       </div>
-    </div>
-    <div class="card"><h2>Sync 방식</h2><div class="hint">같은 email/password로 PC와 폰에서 login하면 Firestore의 같은 단어장을 봄. data 경로는 <code>users/{uid}/words/{wordId}</code>.</div></div>
-  </section>
 
-  <section id="words" class="section">
-    <div class="card">
-      <h2>단어 추가</h2>
-      <div class="row"><div><label>English word</label><input id="wordInput" placeholder="예: frugal"></div><div><label>뜻</label><input id="meaningInput" placeholder="예: 절약하는"></div></div>
-      <div class="btns"><button class="primary require-auth" id="addBtn">추가</button><button class="ghost require-auth" id="restoreBtn">기본 단어 복원</button></div>
-    </div>
-    <div class="card">
-      <h2>여러 개 한 번에 추가</h2>
-      <textarea id="bulkInput" placeholder="한 줄에 하나씩 입력\n\n예:\nfrugal / 절약하는\ncut down on / 줄이다\nmortgage / 담보 대출"></textarea>
-      <div class="hint"><code>영어 / 뜻</code>, <code>영어 - 뜻</code>, <code>영어, 뜻</code> 형태 지원.</div>
-      <div class="btns"><button class="primary require-auth" id="bulkBtn">Bulk 추가</button></div>
-    </div>
-    <div class="card">
-      <h2>내 단어장</h2>
-      <div class="stats"><div class="stat"><div class="num" id="totalWords">0</div><div class="name">전체 단어</div></div><div class="stat"><div class="num" id="totalWrong">0</div><div class="name">누적 오답</div></div><div class="stat"><div class="num" id="hardWords">0</div><div class="name">2회 이상 오답</div></div><div class="stat"><div class="num" id="totalAsked">0</div><div class="name">누적 출제</div></div></div>
-      <div class="btns"><button class="ghost" id="exportBtn">Export</button><button class="ghost require-auth" id="importBtn">Import</button><input type="file" id="importFile" accept="application/json" style="display:none"></div>
-      <div id="wordList" class="word-list"></div>
-    </div>
-    <div class="card" style="background:#fff7f7;border-color:#fecaca"><h2>초기화</h2><div class="hint">현재 로그인한 계정의 cloud 단어 data를 모두 삭제함.</div><div class="btns"><button class="danger require-auth" id="clearBtn">전체 삭제</button></div></div>
-  </section>
+      <div class="card danger-zone">
+        <h2>초기화</h2>
+        <div class="hint">현재 로그인한 계정의 cloud 단어 data를 모두 삭제함.</div>
+        <div class="btns">
+          <button class="danger require-auth" id="clearBtn">전체 삭제</button>
+        </div>
+      </div>
+    </section>
 
-  <section id="quiz" class="section">
-    <div class="card"><h2>Quiz 설정</h2><div class="row"><div><label>전체 반복 횟수</label><select id="repeatTarget"><option value="1">1회</option><option value="2">2회</option><option value="3" selected>3회</option><option value="5">5회</option></select></div><div><label>문제 방향</label><select id="modeSelect"><option value="mixed" selected>랜덤: English ↔ 뜻</option><option value="wordToMeaning">English → 뜻</option><option value="meaningToWord">뜻 → English</option></select></div></div><div class="btns"><button class="primary require-auth" id="startBtn">전체 단어 Test 시작</button><button class="warn require-auth" id="reviewBtn">2회 이상 틀린 단어 Test</button></div><div class="hint">정답을 자동 채점하지 않고, 직접 보고 <b>맞음 / 틀림</b>을 누르는 방식.</div></div>
-    <div class="card"><h2>Quiz</h2><div id="quizEmpty" class="empty">아직 quiz가 시작되지 않았음.</div><div id="quizPanel" style="display:none"><div class="bar"><div class="progress" id="progressBar"></div></div><div class="q"><span class="badge" id="quizBadge">Question</span><div class="question" id="questionText">-</div><div class="hint" id="questionSub">정답을 생각한 뒤 확인</div><input id="selfAnswer" placeholder="원하면 답을 적어도 됨. 채점은 직접 함."><div class="answer" id="answerBox">-</div><div class="btns" style="justify-content:center"><button class="primary" id="showAnswerBtn">정답 확인</button><button class="ghost" id="skipBtn">Skip</button><button class="danger" id="stopBtn">중단</button></div><div class="big"><button class="good" id="correctBtn" disabled>맞음</button><button class="danger" id="wrongBtn" disabled>틀림</button></div></div></div></div>
-  </section>
+    <section id="quiz" class="section">
+      <div class="card">
+        <h2>Quiz 설정</h2>
+        <div class="row3">
+          <div>
+            <label for="repeatTarget">전체 반복 횟수</label>
+            <select id="repeatTarget">
+              <option value="1">1회</option>
+              <option value="2">2회</option>
+              <option value="3" selected>3회</option>
+              <option value="5">5회</option>
+            </select>
+          </div>
+          <div>
+            <label for="modeSelect">문제 방향</label>
+            <select id="modeSelect">
+              <option value="mixed" selected>랜덤: English ↔ 뜻</option>
+              <option value="wordToMeaning">English → 뜻</option>
+              <option value="meaningToWord">뜻 → English</option>
+            </select>
+          </div>
+          <div>
+            <label for="quizDaySelect">Quiz Day</label>
+            <select id="quizDaySelect">
+              <option value="all">전체 Day</option>
+            </select>
+          </div>
+        </div>
 
-  <section id="result" class="section">
-    <div class="card"><h2>Result</h2><div class="stats"><div class="stat"><div class="num" id="resultWords">0</div><div class="name">학습 단어</div></div><div class="stat"><div class="num" id="resultCorrect">0</div><div class="name">맞음</div></div><div class="stat"><div class="num" id="resultWrong">0</div><div class="name">틀림</div></div><div class="stat"><div class="num" id="resultHard">0</div><div class="name">2회 이상 오답</div></div></div><div class="btns"><button class="warn require-auth" id="resultReviewBtn">2회 이상 틀린 단어 다시 Test</button><button class="ghost require-auth" id="resetCountsBtn">오답 횟수 Reset</button></div><div id="resultTableWrap" style="margin-top:14px"></div></div>
-  </section>
-</div>
-<div class="toast" id="toast"></div>
+        <div class="row">
+          <div>
+            <label for="reviewWrongMin">Review 기준</label>
+            <select id="reviewWrongMin">
+              <option value="1">1회 이상 오답</option>
+              <option value="2" selected>2회 이상 오답</option>
+              <option value="3">3회 이상 오답</option>
+              <option value="4">4회 이상 오답</option>
+              <option value="5">5회 이상 오답</option>
+            </select>
+          </div>
+          <div>
+            <label for="quizSearchInput">Quiz search filter</label>
+            <input id="quizSearchInput" placeholder="특정 단어/뜻만 quiz" autocomplete="off" />
+          </div>
+        </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-import { getFirestore,collection,doc,setDoc,deleteDoc,onSnapshot,getDocs,writeBatch,serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+        <div class="btns">
+          <button class="primary require-auth" id="startBtn">선택한 단어 Test 시작</button>
+          <button class="warn require-auth" id="reviewBtn">n회 이상 틀린 단어 Test</button>
+        </div>
+        <div class="hint">Day filter와 search filter를 조합해서 quiz 가능.</div>
+      </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
-  authDomain: "vocabapp-19da2.firebaseapp.com",
-  projectId: "vocabapp-19da2",
-  storageBucket: "vocabapp-19da2.firebasestorage.app",
-  messagingSenderId: "890914638546",
-  appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
-};
+      <div class="card">
+        <h2>Quiz</h2>
+        <div id="quizEmpty" class="empty">아직 quiz가 시작되지 않았음.</div>
 
-const DEFAULT_WORDS=[
-["frugal","절약하는"],["cut down on","줄이다"],["mortgage","담보 대출"],["loan","대출"],["in the red","적자인"],["statement","입출금 내역서 / 성명 / 진술"],["recession","불경기 / 경기 침체"],["stimulate","활발하게 하다 / 자극하다"],["galvanize","활기를 불어 넣다 / 자극하다"],["compensate","보상하다"],["plummet","폭락하다"],["remuneration","보상"],["reimburse","배상하다"],["deficit","적자 / 부족"],["redeem","현금으로 교환하다"],["persistent","계속되는"],["moratorium","지불 유예"],["pitch in","협력하다"],["rig","조작하다"],["prospect","전망 / 예상"],["appraise","감정하다 / 평가하다"],["recoup","되찾다 / 만회하다"],["plunge","떨어지다"],["unfettered","자유로운"],["deposit","예금하다 / 보증금 / 계약금"],["sustain","유지하다"],["soar","치솟다 / 급상승하다"]
-].map(([word,meaning])=>({word,meaning}));
+        <div id="quizPanel" style="display:none">
+          <div class="progress-wrap">
+            <div class="progress" id="progressBar"></div>
+          </div>
 
-let words=[],session=null,app=null,auth=null,db=null,currentUser=null,unsub=null;
-const $=id=>document.getElementById(id);
-const norm=s=>String(s||"").trim();
-const id=()=>crypto?.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,8);
-function configured(){return firebaseConfig.apiKey&&!firebaseConfig.apiKey.startsWith("PASTE_")&&firebaseConfig.projectId&&!firebaseConfig.projectId.startsWith("PASTE_")&&firebaseConfig.appId&&!firebaseConfig.appId.startsWith("PASTE_")}
-function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
-function status(m,k=""){const e=$("syncStatus");e.textContent=m;e.className="status "+k}
-function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
-function wcol(){return collection(db,"users",currentUser.uid,"words")} function wdoc(x){return doc(db,"users",currentUser.uid,"words",x)}
-function payload(w){return{word:norm(w.word),meaning:norm(w.meaning),askedTotal:Number(w.askedTotal||0),correctTotal:Number(w.correctTotal||0),wrongTotal:Number(w.wrongTotal||0),updatedAt:serverTimestamp()}}
-function needAuth(){document.querySelectorAll(".require-auth").forEach(b=>b.disabled=!currentUser)}
-function render(){renderStats();renderWords();renderResult();needAuth()}
-function renderStats(){$("totalWords").textContent=words.length;$("totalWrong").textContent=words.reduce((s,w)=>s+w.wrongTotal,0);$("hardWords").textContent=words.filter(w=>w.wrongTotal>=2).length;$("totalAsked").textContent=words.reduce((s,w)=>s+w.askedTotal,0)}
-function renderWords(){const box=$("wordList"); if(!currentUser){box.innerHTML='<div class="empty">Login하면 cloud 단어장이 표시됨.</div>';return} if(!words.length){box.innerHTML='<div class="empty">단어가 없음. 기본 단어 복원 또는 직접 추가 가능.</div>';return} box.innerHTML=words.map(w=>`<div class="word-item"><div><div class="word-title">${esc(w.word)}</div><div class="word-meaning">${esc(w.meaning)}</div><div class="mini">출제 ${w.askedTotal}회 · 맞음 ${w.correctTotal}회 · 틀림 ${w.wrongTotal}회</div></div><div class="btns"><button class="ghost" onclick="deleteWord('${w.id}')">삭제</button></div></div>`).join("")}
-function renderResult(){const c=words.reduce((s,w)=>s+w.correctTotal,0),wr=words.reduce((s,w)=>s+w.wrongTotal,0),h=words.filter(w=>w.wrongTotal>=2).length;$("resultWords").textContent=words.length;$("resultCorrect").textContent=c;$("resultWrong").textContent=wr;$("resultHard").textContent=h;if(!words.length){$("resultTableWrap").innerHTML='<div class="empty">결과가 없음.</div>';return} const rows=[...words].sort((a,b)=>b.wrongTotal-a.wrongTotal||a.word.localeCompare(b.word)).map(w=>`<tr><td><b>${esc(w.word)}</b></td><td>${esc(w.meaning)}</td><td>${w.askedTotal}</td><td>${w.correctTotal}</td><td><b>${w.wrongTotal}</b></td><td>${w.wrongTotal>=2?'<span class="pill">Review</span>':''}</td></tr>`).join("");$("resultTableWrap").innerHTML=`<table><thead><tr><th>Word</th><th>뜻</th><th>출제</th><th>맞음</th><th>틀림</th><th>상태</th></tr></thead><tbody>${rows}</tbody></table>`}
-function tab(name){document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));document.querySelectorAll(".section").forEach(s=>s.classList.toggle("active",s.id===name))}
-async function addWords(items){if(!currentUser){toast("Login 필요");return 0}let n=0;for(const it of items){const word=norm(it.word),meaning=norm(it.meaning);if(!word||!meaning)continue;if(words.some(w=>w.word.toLowerCase()===word.toLowerCase()))continue;const wid=id();await setDoc(wdoc(wid),{...payload({word,meaning}),createdAt:serverTimestamp()});n++}return n}
-function parseBulk(text){return text.split("\n").map(s=>s.trim()).filter(Boolean).map(line=>{let p=null;if(line.includes(" / "))p=line.split(" / ");else if(line.includes(" - "))p=line.split(" - ");else if(line.includes(","))p=line.split(",");return p&&p.length>=2?{word:p[0].trim(),meaning:p.slice(1).join(" / ").trim()}:null}).filter(Boolean)}
-async function deleteWord(x){if(!currentUser)return;await deleteDoc(wdoc(x));toast("삭제됨")} window.deleteWord=deleteWord;
-async function restore(){const n=await addWords(DEFAULT_WORDS);toast(`기본 단어 ${n}개 추가됨`)}
-async function clearAll(){if(!currentUser)return;const s=await getDocs(wcol()),b=writeBatch(db);s.forEach(d=>b.delete(d.ref));await b.commit();toast("전체 삭제됨")}
-async function resetCounts(){if(!currentUser)return;const b=writeBatch(db);for(const w of words)b.set(wdoc(w.id),{askedTotal:0,correctTotal:0,wrongTotal:0,updatedAt:serverTimestamp()},{merge:true});await b.commit();toast("Reset 완료")}
-function buildQueue(list,repeat){const q=[];list.forEach(w=>{for(let i=0;i<repeat;i++)q.push(w.id)});for(let i=q.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[q[i],q[j]]=[q[j],q[i]]}return q}
-function startQuiz(type){if(!currentUser){toast("Login 필요");tab("login");return}if(!words.length){toast("단어를 먼저 추가");return}const repeat=Number($("repeatTarget").value||3),target=type==="review"?words.filter(w=>w.wrongTotal>=2):words;if(!target.length){toast("2회 이상 틀린 단어가 없음");return}session={queue:buildQueue(target,repeat),total:target.length*repeat,done:0,correct:0,wrong:0,current:null,dir:null};$("quizEmpty").style.display="none";$("quizPanel").style.display="block";tab("quiz");nextQ()}
-function nextQ(){if(!session)return;if(!session.queue.length){finish();return}session.current=session.queue.shift();const mode=$("modeSelect").value;session.dir=mode==="mixed"?(Math.random()<.5?"wordToMeaning":"meaningToWord"):mode;const w=words.find(x=>x.id===session.current);if(!w){nextQ();return}const wm=session.dir==="wordToMeaning";$("quizBadge").textContent=wm?"English → 뜻":"뜻 → English";$("questionText").textContent=wm?w.word:w.meaning;$("questionSub").textContent=`${session.done+1} / ${session.total}`;$("answerBox").textContent=wm?w.meaning:w.word;$("answerBox").classList.remove("show");$("selfAnswer").value="";$("showAnswerBtn").disabled=false;$("correctBtn").disabled=true;$("wrongBtn").disabled=true;$("progressBar").style.width=Math.round(session.done/session.total*100)+"%"}
-function showAns(){$("answerBox").classList.add("show");$("showAnswerBtn").disabled=true;$("correctBtn").disabled=false;$("wrongBtn").disabled=false}
-async function grade(ok){if(!session||!currentUser)return;const w=words.find(x=>x.id===session.current);if(!w)return;const u={...w,askedTotal:w.askedTotal+1,correctTotal:w.correctTotal+(ok?1:0),wrongTotal:w.wrongTotal+(ok?0:1)};if(ok)session.correct++;else session.wrong++;session.done++;await setDoc(wdoc(w.id),payload(u),{merge:true});nextQ()}
-function skip(){if(!session)return;session.done++;nextQ()} function stop(){session=null;$("quizEmpty").style.display="block";$("quizEmpty").textContent="Quiz가 중단됨.";$("quizPanel").style.display="none"}
-function finish(){const c=session.correct,w=session.wrong;session=null;$("quizEmpty").style.display="block";$("quizEmpty").textContent=`Quiz 완료. 맞음 ${c}개, 틀림 ${w}개`;$("quizPanel").style.display="none";render();tab("result");toast("Quiz 완료")}
-function exportData(){const blob=new Blob([JSON.stringify(words,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="vocab-quiz-data.json";a.click();URL.revokeObjectURL(url)}
-async function importData(file){if(!currentUser){toast("Login 필요");return}const r=new FileReader();r.onload=async()=>{try{const data=JSON.parse(r.result);if(!Array.isArray(data))throw Error();const b=writeBatch(db);let n=0;data.forEach(raw=>{const w={id:raw.id||id(),word:norm(raw.word),meaning:norm(raw.meaning),askedTotal:Number(raw.askedTotal||0),correctTotal:Number(raw.correctTotal||0),wrongTotal:Number(raw.wrongTotal||0)};if(!w.word||!w.meaning)return;b.set(wdoc(w.id),{...payload(w),createdAt:serverTimestamp()},{merge:true});n++});await b.commit();toast(`Import ${n}개 완료`)}catch(e){console.error(e);toast("Import 실패")}};r.readAsText(file)}
-function authMsg(e){const c=e?.code||"";if(c.includes("invalid-credential"))return"Login 실패: 계정/password 확인";if(c.includes("email-already-in-use"))return"이미 가입된 email";if(c.includes("weak-password"))return"password는 최소 6자";if(c.includes("operation-not-allowed"))return"Firebase에서 Email/Password enable 필요";if(c.includes("unauthorized-domain"))return"Authorized domains 설정 필요";return"Firebase auth error"}
-async function signIn(){try{await signInWithEmailAndPassword(auth,norm($("emailInput").value),$("passwordInput").value);toast("Login 성공")}catch(e){console.error(e);toast(authMsg(e))}}
-async function signUp(){try{await createUserWithEmailAndPassword(auth,norm($("emailInput").value),$("passwordInput").value);toast("Sign up 성공")}catch(e){console.error(e);toast(authMsg(e))}}
-function subscribe(){if(unsub)unsub();unsub=onSnapshot(wcol(),snap=>{words=snap.docs.map(d=>{const x=d.data();return{id:d.id,word:norm(x.word),meaning:norm(x.meaning),askedTotal:Number(x.askedTotal||0),correctTotal:Number(x.correctTotal||0),wrongTotal:Number(x.wrongTotal||0)}}).filter(w=>w.word&&w.meaning).sort((a,b)=>a.word.localeCompare(b.word));render();status(`Sync ON · ${currentUser.email}`,"ok")},e=>{console.error(e);status("Sync error: Firestore Rules 확인","bad");toast("Firestore 읽기 실패")})}
-function init(){if(!configured()){status("Firebase 설정 필요");$("configWarning").style.display="block";$("authPanel").style.display="none";needAuth();return}try{app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);$("configWarning").style.display="none";$("authPanel").style.display="block";status("Firebase 준비됨 · Login 필요");onAuthStateChanged(auth,u=>{currentUser=u;session=null;if(unsub){unsub();unsub=null}if(u){$("userInfo").textContent=`Login: ${u.email}`;$("signOutBtn").style.display="inline-flex";subscribe();tab("words")}else{words=[];$("userInfo").textContent="로그인 필요";$("signOutBtn").style.display="none";status("Firebase 준비됨 · Login 필요");render();tab("login")}})}catch(e){console.error(e);status("Firebase init 실패","bad")}}
+          <div class="quiz-box">
+            <span class="badge" id="quizBadge">Question</span>
+            <div class="question" id="questionText">-</div>
+            <div class="question-sub" id="questionSub">정답을 생각한 뒤 확인</div>
 
-document.addEventListener("DOMContentLoaded",()=>{
- document.querySelectorAll(".tab").forEach(t=>{t.onclick=()=>tab(t.dataset.tab);t.addEventListener("touchstart",()=>tab(t.dataset.tab),{passive:true})});render();init();
- $("signInBtn").onclick=signIn;$("signUpBtn").onclick=signUp;$("signOutBtn").onclick=()=>signOut(auth);
- $("addBtn").onclick=async()=>{const n=await addWords([{word:$("wordInput").value,meaning:$("meaningInput").value}]);if(n){$("wordInput").value="";$("meaningInput").value="";toast("단어 추가됨")}else toast("이미 있거나 입력이 비었음")};
- $("wordInput").onkeydown=e=>{if(e.key==="Enter")$("meaningInput").focus()};$("meaningInput").onkeydown=e=>{if(e.key==="Enter")$("addBtn").click()};
- $("bulkBtn").onclick=async()=>{const n=await addWords(parseBulk($("bulkInput").value));if(n){$("bulkInput").value="";toast(`${n}개 추가됨`)}else toast("추가할 단어 없음")};$("restoreBtn").onclick=restore;
- $("clearBtn").onclick=async()=>{if(confirm("현재 계정의 cloud 단어를 전체 삭제할까?"))await clearAll()};$("resetCountsBtn").onclick=async()=>{if(confirm("오답/정답/출제 횟수를 Reset할까?"))await resetCounts()};
- $("startBtn").onclick=()=>startQuiz("all");$("reviewBtn").onclick=()=>startQuiz("review");$("resultReviewBtn").onclick=()=>startQuiz("review");$("showAnswerBtn").onclick=showAns;$("correctBtn").onclick=()=>grade(true);$("wrongBtn").onclick=()=>grade(false);$("skipBtn").onclick=skip;$("stopBtn").onclick=stop;
- $("exportBtn").onclick=exportData;$("importBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{const f=e.target.files[0];if(f)importData(f);e.target.value=""};
-});
-</script>
+            <input id="selfAnswer" placeholder="원하면 답을 적어도 됨. 채점은 직접 함." autocomplete="off" />
+            <div class="answer" id="answerBox">-</div>
+
+            <div class="btns" style="justify-content:center">
+              <button class="primary" id="showAnswerBtn">정답 확인</button>
+              <button class="ghost" id="skipBtn">Skip</button>
+              <button class="danger" id="stopBtn">중단</button>
+            </div>
+
+            <div class="big-buttons">
+              <button class="good" id="correctBtn" disabled>맞음</button>
+              <button class="danger" id="wrongBtn" disabled>틀림</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="weak" class="section">
+      <div class="card">
+        <h2>Weak Words</h2>
+        <div class="row3">
+          <div>
+            <label for="weakMinSelect">오답 기준</label>
+            <select id="weakMinSelect">
+              <option value="1">1회 이상</option>
+              <option value="2" selected>2회 이상</option>
+              <option value="3">3회 이상</option>
+              <option value="4">4회 이상</option>
+              <option value="5">5회 이상</option>
+            </select>
+          </div>
+          <div>
+            <label for="weakDaySelect">Day filter</label>
+            <select id="weakDaySelect">
+              <option value="all">전체 Day</option>
+            </select>
+          </div>
+          <div>
+            <label for="weakSearchInput">Search</label>
+            <input id="weakSearchInput" placeholder="weak words 검색" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="num" id="weakCount">0</div>
+            <div class="name">Weak words</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="weakMaxWrong">0</div>
+            <div class="name">최대 오답</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="weakAvgWrong">0</div>
+            <div class="name">평균 오답</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="weakUnsolved">0</div>
+            <div class="name">미출제</div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="warn require-auth" id="weakQuizBtn">현재 Weak Words로 Quiz</button>
+        </div>
+
+        <div id="weakList" class="word-list"></div>
+      </div>
+    </section>
+
+    <section id="result" class="section">
+      <div class="card">
+        <h2>Result</h2>
+        <div class="stats">
+          <div class="stat">
+            <div class="num" id="resultWords">0</div>
+            <div class="name">학습 단어</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="resultCorrect">0</div>
+            <div class="name">맞음</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="resultWrong">0</div>
+            <div class="name">틀림</div>
+          </div>
+          <div class="stat">
+            <div class="num" id="resultHard">0</div>
+            <div class="name"><span id="resultHardLabel">n회 이상 오답</span></div>
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="warn require-auth" id="resultReviewBtn">n회 이상 틀린 단어 다시 Test</button>
+          <button class="ghost require-auth" id="resetCountsBtn">오답 횟수 Reset</button>
+        </div>
+
+        <div id="resultTableWrap" style="margin-top:14px"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      deleteDoc,
+      onSnapshot,
+      getDocs,
+      writeBatch,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // TODO: Firebase console에서 받은 config를 여기에 붙여넣기.
+    const firebaseConfig = {
+      apiKey: "PASTE_API_KEY_HERE",
+      authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+      projectId: "PASTE_PROJECT_ID",
+      storageBucket: "PASTE_PROJECT_ID.appspot.com",
+      messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
+      appId: "PASTE_APP_ID"
+    };
+
+    const DEFAULT_WORDS = [
+      { word: "frugal", meaning: "절약하는", day: 1 },
+      { word: "cut down on", meaning: "줄이다", day: 1 },
+      { word: "mortgage", meaning: "담보 대출", day: 1 },
+      { word: "loan", meaning: "대출", day: 1 },
+      { word: "in the red", meaning: "적자인", day: 1 },
+      { word: "statement", meaning: "입출금 내역서 / 성명 / 진술", day: 1 },
+      { word: "recession", meaning: "불경기 / 경기 침체", day: 1 },
+      { word: "stimulate", meaning: "활발하게 하다 / 자극하다", day: 1 },
+      { word: "galvanize", meaning: "활기를 불어 넣다 / 자극하다", day: 1 },
+      { word: "compensate", meaning: "보상하다", day: 1 },
+      { word: "plummet", meaning: "폭락하다", day: 1 },
+      { word: "remuneration", meaning: "보상", day: 1 },
+      { word: "reimburse", meaning: "배상하다", day: 1 },
+      { word: "deficit", meaning: "적자 / 부족", day: 1 },
+      { word: "redeem", meaning: "현금으로 교환하다", day: 1 },
+      { word: "persistent", meaning: "계속되는", day: 1 },
+      { word: "moratorium", meaning: "지불 유예", day: 1 },
+      { word: "pitch in", meaning: "협력하다", day: 1 },
+      { word: "rig", meaning: "조작하다", day: 1 },
+      { word: "prospect", meaning: "전망 / 예상", day: 1 },
+      { word: "appraise", meaning: "감정하다 / 평가하다", day: 1 },
+      { word: "recoup", meaning: "되찾다 / 만회하다", day: 1 },
+      { word: "plunge", meaning: "떨어지다", day: 1 },
+      { word: "unfettered", meaning: "자유로운", day: 1 },
+      { word: "deposit", meaning: "예금하다 / 보증금 / 계약금", day: 1 },
+      { word: "sustain", meaning: "유지하다", day: 1 },
+      { word: "soar", meaning: "치솟다 / 급상승하다", day: 1 }
+    ];
+
+    let words = [];
+    let session = null;
+    let app = null;
+    let auth = null;
+    let db = null;
+    let currentUser = null;
+    let unsubscribeWords = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function isFirebaseConfigured() {
+      return firebaseConfig.apiKey &&
+        !firebaseConfig.apiKey.startsWith("PASTE_") &&
+        firebaseConfig.projectId &&
+        !firebaseConfig.projectId.startsWith("PASTE_") &&
+        firebaseConfig.appId &&
+        !firebaseConfig.appId.startsWith("PASTE_");
+    }
+
+    function uid() {
+      if (crypto && crypto.randomUUID) return crypto.randomUUID();
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function normalize(s) {
+      return String(s || "").trim();
+    }
+
+    function parseDay(value) {
+      const n = Number(String(value || "").replace(/[^0-9]/g, ""));
+      return Number.isFinite(n) && n > 0 ? Math.floor(n) : 1;
+    }
+
+    function splitMeanings(meaning) {
+      return normalize(meaning)
+        .split("/")
+        .map(s => s.trim())
+        .filter(Boolean);
+    }
+
+    function meaningsHtml(meaning) {
+      const parts = splitMeanings(meaning);
+      if (parts.length <= 1) return `<div class="word-meaning">${escapeHtml(meaning)}</div>`;
+      return `<div class="meaning-parts">${parts.map((p, idx) => `<span class="meaning-chip">${idx + 1}. ${escapeHtml(p)}</span>`).join("")}</div>`;
+    }
+
+    function answerHtml(w, direction) {
+      if (direction === "wordToMeaning") {
+        const parts = splitMeanings(w.meaning);
+        if (parts.length <= 1) return escapeHtml(w.meaning);
+        return `<div class="meaning-parts" style="justify-content:center">${parts.map((p, idx) => `<span class="meaning-chip">${idx + 1}. ${escapeHtml(p)}</span>`).join("")}</div>`;
+      }
+      return escapeHtml(w.word);
+    }
+
+    function toast(msg) {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 1800);
+    }
+
+    function setStatus(text, kind = "warn") {
+      const el = $("syncStatus");
+      el.textContent = text;
+      el.className = `status ${kind}`;
+    }
+
+    function wordsCollection() {
+      return collection(db, "users", currentUser.uid, "words");
+    }
+
+    function wordDoc(id) {
+      return doc(db, "users", currentUser.uid, "words", id);
+    }
+
+    function makeWord(word, meaning, day = 1) {
+      return {
+        id: uid(),
+        word: normalize(word),
+        meaning: normalize(meaning),
+        day: parseDay(day),
+        askedTotal: 0,
+        correctTotal: 0,
+        wrongTotal: 0
+      };
+    }
+
+    function cloudPayload(w) {
+      return {
+        word: normalize(w.word),
+        meaning: normalize(w.meaning),
+        day: parseDay(w.day),
+        askedTotal: Number(w.askedTotal || 0),
+        correctTotal: Number(w.correctTotal || 0),
+        wrongTotal: Number(w.wrongTotal || 0),
+        updatedAt: serverTimestamp()
+      };
+    }
+
+    async function saveWordToCloud(w) {
+      if (!currentUser) {
+        toast("Login 필요");
+        return;
+      }
+      await setDoc(wordDoc(w.id), cloudPayload(w), { merge: true });
+    }
+
+    async function addWords(items) {
+      if (!currentUser) {
+        toast("Login 필요");
+        return 0;
+      }
+
+      let added = 0;
+      for (const item of items) {
+        const word = normalize(item.word);
+        const meaning = normalize(item.meaning);
+        const day = parseDay(item.day);
+        if (!word || !meaning) continue;
+
+        const exists = words.some(w =>
+          w.word.toLowerCase() === word.toLowerCase() && parseDay(w.day) === day
+        );
+        if (exists) continue;
+
+        const w = makeWord(word, meaning, day);
+        await setDoc(wordDoc(w.id), {
+          ...cloudPayload(w),
+          createdAt: serverTimestamp()
+        });
+        added++;
+      }
+      return added;
+    }
+
+    function parseBulk(text, defaultDay) {
+      const lines = text.split("\n").map(s => s.trim()).filter(Boolean);
+      const result = [];
+
+      for (const rawLine of lines) {
+        let line = rawLine;
+        let day = parseDay(defaultDay);
+        const dayMatch = line.match(/^day\s*(\d+)\s*[:|-]\s*(.+)$/i);
+        if (dayMatch) {
+          day = parseDay(dayMatch[1]);
+          line = dayMatch[2].trim();
+        }
+
+        let parts = null;
+        if (line.includes(" / ")) parts = line.split(" / ");
+        else if (line.includes(" - ")) parts = line.split(" - ");
+        else if (line.includes(",")) parts = line.split(",");
+
+        if (parts && parts.length >= 2) {
+          const word = parts[0].trim();
+          const meaning = parts.slice(1).join(" / ").trim();
+          result.push({ word, meaning, day });
+        }
+      }
+
+      return result;
+    }
+
+    async function deleteWord(id) {
+      if (!currentUser) return;
+      await deleteDoc(wordDoc(id));
+      toast("삭제됨");
+    }
+
+    async function resetCounts() {
+      if (!currentUser) return;
+      const batch = writeBatch(db);
+      for (const w of words) {
+        batch.set(wordDoc(w.id), {
+          askedTotal: 0,
+          correctTotal: 0,
+          wrongTotal: 0,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+      await batch.commit();
+      toast("오답 횟수 Reset 완료");
+    }
+
+    function getReviewMin() {
+      return Number($("reviewWrongMin")?.value || 2);
+    }
+
+    function getAvailableDays() {
+      return [...new Set(words.map(w => parseDay(w.day)))].sort((a, b) => a - b);
+    }
+
+    function refreshDayOptions() {
+      const days = getAvailableDays();
+      const selects = [$("dayFilter"), $("quizDaySelect"), $("weakDaySelect")].filter(Boolean);
+      for (const select of selects) {
+        const prev = select.value || "all";
+        select.innerHTML = '<option value="all">전체 Day</option>' +
+          days.map(d => `<option value="${d}">Day ${d}</option>`).join("");
+        select.value = [...select.options].some(o => o.value === prev) ? prev : "all";
+      }
+    }
+
+    function matchesSearch(w, query) {
+      const q = normalize(query).toLowerCase();
+      if (!q) return true;
+      return w.word.toLowerCase().includes(q) ||
+        w.meaning.toLowerCase().includes(q) ||
+        `day ${parseDay(w.day)}`.includes(q) ||
+        String(parseDay(w.day)) === q;
+    }
+
+    function filterByDay(list, dayValue) {
+      if (!dayValue || dayValue === "all") return list;
+      const day = parseDay(dayValue);
+      return list.filter(w => parseDay(w.day) === day);
+    }
+
+    function filteredWordsForList() {
+      let list = [...words];
+      list = filterByDay(list, $("dayFilter").value);
+      list = list.filter(w => matchesSearch(w, $("searchInput").value));
+
+      const sort = $("sortSelect").value;
+      if (sort === "wrong") {
+        list.sort((a, b) => b.wrongTotal - a.wrongTotal || parseDay(a.day) - parseDay(b.day) || a.word.localeCompare(b.word));
+      } else if (sort === "word") {
+        list.sort((a, b) => a.word.localeCompare(b.word));
+      } else {
+        list.sort((a, b) => parseDay(a.day) - parseDay(b.day) || a.word.localeCompare(b.word));
+      }
+      return list;
+    }
+
+    function filteredQuizWords() {
+      let list = [...words];
+      list = filterByDay(list, $("quizDaySelect").value);
+      list = list.filter(w => matchesSearch(w, $("quizSearchInput").value));
+      return list;
+    }
+
+    function filteredWeakWords() {
+      const min = Number($("weakMinSelect").value || 2);
+      let list = words.filter(w => w.wrongTotal >= min);
+      list = filterByDay(list, $("weakDaySelect").value);
+      list = list.filter(w => matchesSearch(w, $("weakSearchInput").value));
+      list.sort((a, b) => b.wrongTotal - a.wrongTotal || parseDay(a.day) - parseDay(b.day) || a.word.localeCompare(b.word));
+      return list;
+    }
+
+    function renderStats() {
+      const reviewMin = getReviewMin();
+      $("totalWords").textContent = words.length;
+      $("totalWrong").textContent = words.reduce((sum, w) => sum + w.wrongTotal, 0);
+      $("hardWords").textContent = words.filter(w => w.wrongTotal >= reviewMin).length;
+      $("hardWordsLabel").textContent = `${reviewMin}회 이상 오답`;
+      $("totalAsked").textContent = words.reduce((sum, w) => sum + w.askedTotal, 0);
+    }
+
+    function renderWordList() {
+      const box = $("wordList");
+      if (!currentUser) {
+        box.innerHTML = '<div class="empty">Login하면 cloud 단어장이 표시됨.</div>';
+        return;
+      }
+
+      const list = filteredWordsForList();
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty">표시할 단어가 없음.</div>';
+        return;
+      }
+
+      box.innerHTML = list.map(w => `
+        <div class="word-item">
+          <div>
+            <div>
+              <span class="pill day">Day ${parseDay(w.day)}</span>
+              ${w.wrongTotal >= getReviewMin() ? '<span class="pill weak">Weak</span>' : ''}
+            </div>
+            <div class="word-title">${escapeHtml(w.word)}</div>
+            ${meaningsHtml(w.meaning)}
+            <div class="mini">출제 ${w.askedTotal}회 · 맞음 ${w.correctTotal}회 · 틀림 ${w.wrongTotal}회</div>
+          </div>
+          <div class="btns">
+            <button class="ghost" onclick="deleteWord('${w.id}')">삭제</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderWeak() {
+      const list = filteredWeakWords();
+      const wrongs = list.map(w => w.wrongTotal);
+      $("weakCount").textContent = list.length;
+      $("weakMaxWrong").textContent = wrongs.length ? Math.max(...wrongs) : 0;
+      $("weakAvgWrong").textContent = wrongs.length ? (wrongs.reduce((a, b) => a + b, 0) / wrongs.length).toFixed(1) : 0;
+      $("weakUnsolved").textContent = words.filter(w => w.askedTotal === 0).length;
+
+      const box = $("weakList");
+      if (!currentUser) {
+        box.innerHTML = '<div class="empty">Login하면 Weak Words가 표시됨.</div>';
+        return;
+      }
+      if (list.length === 0) {
+        box.innerHTML = '<div class="empty">조건에 맞는 Weak Words가 없음.</div>';
+        return;
+      }
+
+      box.innerHTML = list.map((w, idx) => `
+        <div class="word-item">
+          <div>
+            <div>
+              <span class="pill weak">#${idx + 1} · ${w.wrongTotal}회 오답</span>
+              <span class="pill day">Day ${parseDay(w.day)}</span>
+            </div>
+            <div class="word-title">${escapeHtml(w.word)}</div>
+            ${meaningsHtml(w.meaning)}
+            <div class="mini">출제 ${w.askedTotal}회 · 맞음 ${w.correctTotal}회 · 틀림 ${w.wrongTotal}회</div>
+          </div>
+          <div class="btns">
+            <button class="primary" onclick="startSingleWordQuiz('${w.id}')">이 단어만</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderResult() {
+      const reviewMin = getReviewMin();
+      const totalCorrect = words.reduce((sum, w) => sum + w.correctTotal, 0);
+      const totalWrong = words.reduce((sum, w) => sum + w.wrongTotal, 0);
+      const hard = words.filter(w => w.wrongTotal >= reviewMin).length;
+
+      $("resultWords").textContent = words.length;
+      $("resultCorrect").textContent = totalCorrect;
+      $("resultWrong").textContent = totalWrong;
+      $("resultHard").textContent = hard;
+      $("resultHardLabel").textContent = `${reviewMin}회 이상 오답`;
+
+      if (words.length === 0) {
+        $("resultTableWrap").innerHTML = '<div class="empty">결과가 없음.</div>';
+        return;
+      }
+
+      const rows = [...words]
+        .sort((a, b) => b.wrongTotal - a.wrongTotal || parseDay(a.day) - parseDay(b.day) || a.word.localeCompare(b.word))
+        .map(w => `
+          <tr>
+            <td>
+              <span class="pill day">Day ${parseDay(w.day)}</span>
+              <br><b>${escapeHtml(w.word)}</b>
+            </td>
+            <td>${escapeHtml(w.meaning)}</td>
+            <td>${w.askedTotal}</td>
+            <td>${w.correctTotal}</td>
+            <td><b>${w.wrongTotal}</b></td>
+            <td>${w.wrongTotal >= reviewMin ? '<span class="pill weak">Review</span>' : ''}</td>
+          </tr>
+        `).join("");
+
+      $("resultTableWrap").innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Word</th>
+              <th>뜻</th>
+              <th>출제</th>
+              <th>맞음</th>
+              <th>틀림</th>
+              <th>상태</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function renderAll() {
+      refreshDayOptions();
+      renderStats();
+      renderWordList();
+      renderWeak();
+      renderResult();
+      updateReviewButtonLabels();
+      updateAuthRequiredButtons();
+    }
+
+    function updateReviewButtonLabels() {
+      const n = getReviewMin();
+      $("reviewBtn").textContent = `${n}회 이상 틀린 단어 Test`;
+      $("resultReviewBtn").textContent = `${n}회 이상 틀린 단어 다시 Test`;
+    }
+
+    function updateAuthRequiredButtons() {
+      document.querySelectorAll(".require-auth").forEach(btn => {
+        btn.disabled = !currentUser;
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab").forEach(t => {
+        t.classList.toggle("active", t.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".section").forEach(s => {
+        s.classList.toggle("active", s.id === tabId);
+      });
+    }
+
+    function buildQueue(targetWords, repeat) {
+      const queue = [];
+      targetWords.forEach(w => {
+        for (let i = 0; i < repeat; i++) queue.push(w.id);
+      });
+
+      for (let i = queue.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [queue[i], queue[j]] = [queue[j], queue[i]];
+      }
+
+      return queue;
+    }
+
+    function startQuiz(type, customWords = null) {
+      if (!currentUser) {
+        toast("Login 필요");
+        switchTab("login");
+        return;
+      }
+
+      let targetWords = customWords ? [...customWords] : filteredQuizWords();
+
+      if (type === "review") {
+        const min = getReviewMin();
+        targetWords = targetWords.filter(w => w.wrongTotal >= min);
+      }
+
+      if (targetWords.length === 0) {
+        toast("조건에 맞는 단어가 없음");
+        return;
+      }
+
+      const repeat = Number($("repeatTarget").value || 3);
+      session = {
+        type,
+        repeat,
+        queue: buildQueue(targetWords, repeat),
+        total: targetWords.length * repeat,
+        done: 0,
+        correct: 0,
+        wrong: 0,
+        currentId: null,
+        currentDirection: null,
+        answerShown: false
+      };
+
+      $("quizEmpty").style.display = "none";
+      $("quizPanel").style.display = "block";
+      switchTab("quiz");
+      nextQuestion();
+    }
+
+    function startSingleWordQuiz(id) {
+      const w = words.find(x => x.id === id);
+      if (!w) return;
+      startQuiz("single", [w]);
+    }
+
+    function startWeakQuiz() {
+      const list = filteredWeakWords();
+      startQuiz("weak", list);
+    }
+
+    function nextQuestion() {
+      if (!session) return;
+
+      if (session.queue.length === 0) {
+        finishQuiz();
+        return;
+      }
+
+      session.currentId = session.queue.shift();
+      session.answerShown = false;
+
+      const mode = $("modeSelect").value;
+      if (mode === "mixed") {
+        session.currentDirection = Math.random() < 0.5 ? "wordToMeaning" : "meaningToWord";
+      } else {
+        session.currentDirection = mode;
+      }
+
+      const w = words.find(x => x.id === session.currentId);
+      if (!w) {
+        nextQuestion();
+        return;
+      }
+
+      const isWordToMeaning = session.currentDirection === "wordToMeaning";
+      $("quizBadge").textContent = `${isWordToMeaning ? "English → 뜻" : "뜻 → English"} · Day ${parseDay(w.day)}`;
+      $("questionText").textContent = isWordToMeaning ? w.word : w.meaning;
+      $("questionSub").textContent = `${session.done + 1} / ${session.total}`;
+      $("answerBox").innerHTML = answerHtml(w, session.currentDirection);
+      $("answerBox").classList.remove("show");
+      $("selfAnswer").value = "";
+      $("showAnswerBtn").disabled = false;
+      $("correctBtn").disabled = true;
+      $("wrongBtn").disabled = true;
+      updateProgress();
+    }
+
+    function showAnswer() {
+      if (!session) return;
+      session.answerShown = true;
+      $("answerBox").classList.add("show");
+      $("showAnswerBtn").disabled = true;
+      $("correctBtn").disabled = false;
+      $("wrongBtn").disabled = false;
+    }
+
+    async function grade(isCorrect) {
+      if (!session || !session.currentId || !currentUser) return;
+
+      const w = words.find(x => x.id === session.currentId);
+      if (!w) return;
+
+      const updated = {
+        ...w,
+        askedTotal: Number(w.askedTotal || 0) + 1,
+        correctTotal: Number(w.correctTotal || 0) + (isCorrect ? 1 : 0),
+        wrongTotal: Number(w.wrongTotal || 0) + (isCorrect ? 0 : 1)
+      };
+
+      if (isCorrect) session.correct += 1;
+      else session.wrong += 1;
+
+      session.done += 1;
+
+      await saveWordToCloud(updated);
+      nextQuestion();
+    }
+
+    function skipQuestion() {
+      if (!session) return;
+      session.done += 1;
+      nextQuestion();
+    }
+
+    function stopQuiz() {
+      session = null;
+      $("quizEmpty").style.display = "block";
+      $("quizEmpty").textContent = "Quiz가 중단됨.";
+      $("quizPanel").style.display = "none";
+      renderAll();
+    }
+
+    function finishQuiz() {
+      const correct = session.correct;
+      const wrong = session.wrong;
+      session = null;
+
+      $("quizEmpty").style.display = "block";
+      $("quizEmpty").textContent = `Quiz 완료. 맞음 ${correct}개, 틀림 ${wrong}개`;
+      $("quizPanel").style.display = "none";
+      renderAll();
+      switchTab("result");
+      toast("Quiz 완료");
+    }
+
+    function updateProgress() {
+      if (!session) return;
+      const pct = session.total === 0 ? 0 : Math.round((session.done / session.total) * 100);
+      $("progressBar").style.width = `${pct}%`;
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(words, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "vocab-quiz-data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function importData(file) {
+      if (!currentUser) {
+        toast("Login 필요");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!Array.isArray(data)) throw new Error("Invalid file");
+
+          const batch = writeBatch(db);
+          let count = 0;
+          data.forEach(raw => {
+            const w = {
+              id: raw.id || uid(),
+              word: normalize(raw.word),
+              meaning: normalize(raw.meaning),
+              day: parseDay(raw.day),
+              askedTotal: Number(raw.askedTotal || 0),
+              correctTotal: Number(raw.correctTotal || 0),
+              wrongTotal: Number(raw.wrongTotal || 0)
+            };
+            if (!w.word || !w.meaning) return;
+            batch.set(wordDoc(w.id), {
+              ...cloudPayload(w),
+              createdAt: serverTimestamp()
+            }, { merge: true });
+            count++;
+          });
+
+          await batch.commit();
+          toast(`Import ${count}개 완료`);
+        } catch (e) {
+          console.error(e);
+          toast("Import 실패");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function restoreDefaults() {
+      const defaultDay = parseDay($("bulkDayInput").value || 1);
+      const added = await addWords(DEFAULT_WORDS.map(w => ({ ...w, day: defaultDay })));
+      toast(`기본 단어 ${added}개 추가됨`);
+    }
+
+    async function clearAllWords() {
+      if (!currentUser) return;
+      const snapshot = await getDocs(wordsCollection());
+      const batch = writeBatch(db);
+      snapshot.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      toast("전체 삭제됨");
+    }
+
+    function subscribeWords() {
+      if (unsubscribeWords) unsubscribeWords();
+
+      unsubscribeWords = onSnapshot(wordsCollection(), snapshot => {
+        words = snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            word: normalize(data.word),
+            meaning: normalize(data.meaning),
+            day: parseDay(data.day),
+            askedTotal: Number(data.askedTotal || 0),
+            correctTotal: Number(data.correctTotal || 0),
+            wrongTotal: Number(data.wrongTotal || 0)
+          };
+        }).filter(w => w.word && w.meaning)
+          .sort((a, b) => parseDay(a.day) - parseDay(b.day) || a.word.localeCompare(b.word));
+
+        renderAll();
+        setStatus(`Sync ON · ${currentUser.email}`, "ok");
+      }, error => {
+        console.error(error);
+        setStatus("Sync error: Firestore 규칙 확인 필요", "bad");
+        toast("Firestore 읽기 실패");
+      });
+    }
+
+    async function signIn() {
+      const email = normalize($("emailInput").value);
+      const password = $("passwordInput").value;
+      if (!email || !password) {
+        toast("email/password 입력 필요");
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast("Login 성공");
+      } catch (e) {
+        console.error(e);
+        toast(authErrorMessage(e));
+      }
+    }
+
+    async function signUp() {
+      const email = normalize($("emailInput").value);
+      const password = $("passwordInput").value;
+      if (!email || !password) {
+        toast("email/password 입력 필요");
+        return;
+      }
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        toast("Sign up 성공");
+      } catch (e) {
+        console.error(e);
+        toast(authErrorMessage(e));
+      }
+    }
+
+    async function doSignOut() {
+      await signOut(auth);
+      toast("Logout 완료");
+    }
+
+    function authErrorMessage(e) {
+      const code = e && e.code ? e.code : "";
+      if (code.includes("auth/invalid-credential")) return "Login 실패: 계정 또는 password 확인";
+      if (code.includes("auth/email-already-in-use")) return "이미 가입된 email";
+      if (code.includes("auth/weak-password")) return "password는 최소 6자 이상";
+      if (code.includes("auth/operation-not-allowed")) return "Firebase Authentication에서 Email/Password를 사용 설정해야 함";
+      if (code.includes("auth/unauthorized-domain")) return "Firebase 승인된 도메인 설정 필요";
+      return "Firebase auth error";
+    }
+
+    async function initFirebase() {
+      if (!isFirebaseConfigured()) {
+        setStatus("Firebase 설정 필요", "warn");
+        $("configWarning").style.display = "block";
+        $("authPanel").style.display = "none";
+        updateAuthRequiredButtons();
+        return;
+      }
+
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        await setPersistence(auth, browserLocalPersistence);
+
+        $("configWarning").style.display = "none";
+        $("authPanel").style.display = "block";
+        setStatus("Firebase 준비됨 · Login 필요", "warn");
+
+        onAuthStateChanged(auth, user => {
+          currentUser = user;
+          session = null;
+
+          if (unsubscribeWords) {
+            unsubscribeWords();
+            unsubscribeWords = null;
+          }
+
+          if (user) {
+            $("userInfo").textContent = `Login: ${user.email}`;
+            $("signOutBtn").style.display = "inline-flex";
+            setStatus(`Sync ON · ${user.email}`, "ok");
+            subscribeWords();
+            switchTab("words");
+          } else {
+            words = [];
+            $("userInfo").textContent = "로그인 필요";
+            $("signOutBtn").style.display = "none";
+            setStatus("Firebase 준비됨 · Login 필요", "warn");
+            renderAll();
+            switchTab("login");
+          }
+        });
+      } catch (e) {
+        console.error(e);
+        setStatus("Firebase init 실패", "bad");
+        toast("Firebase config 확인 필요");
+      }
+    }
+
+    window.deleteWord = deleteWord;
+    window.startSingleWordQuiz = startSingleWordQuiz;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+        tab.addEventListener("touchstart", () => switchTab(tab.dataset.tab), { passive: true });
+      });
+
+      renderAll();
+      initFirebase();
+
+      $("signInBtn").addEventListener("click", signIn);
+      $("signUpBtn").addEventListener("click", signUp);
+      $("signOutBtn").addEventListener("click", doSignOut);
+
+      $("addBtn").addEventListener("click", async () => {
+        const word = $("wordInput").value;
+        const meaning = $("meaningInput").value;
+        const day = $("dayInput").value;
+        const added = await addWords([{ word, meaning, day }]);
+        if (added > 0) {
+          $("wordInput").value = "";
+          $("meaningInput").value = "";
+          toast("단어 추가됨");
+        } else {
+          toast("이미 있거나 입력이 비었음");
+        }
+      });
+
+      $("wordInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") $("meaningInput").focus();
+      });
+
+      $("meaningInput").addEventListener("keydown", e => {
+        if (e.key === "Enter") $("addBtn").click();
+      });
+
+      $("bulkBtn").addEventListener("click", async () => {
+        const items = parseBulk($("bulkInput").value, $("bulkDayInput").value);
+        const added = await addWords(items);
+        if (added > 0) {
+          $("bulkInput").value = "";
+          toast(`${added}개 추가됨`);
+        } else {
+          toast("추가할 단어가 없음");
+        }
+      });
+
+      $("restoreBtn").addEventListener("click", restoreDefaults);
+
+      $("clearBtn").addEventListener("click", async () => {
+        if (!confirm("현재 계정의 cloud 단어를 정말 전체 삭제할까?")) return;
+        await clearAllWords();
+      });
+
+      $("startBtn").addEventListener("click", () => startQuiz("all"));
+      $("reviewBtn").addEventListener("click", () => startQuiz("review"));
+      $("resultReviewBtn").addEventListener("click", () => startQuiz("review"));
+      $("weakQuizBtn").addEventListener("click", startWeakQuiz);
+
+      $("showAnswerBtn").addEventListener("click", showAnswer);
+      $("correctBtn").addEventListener("click", () => grade(true));
+      $("wrongBtn").addEventListener("click", () => grade(false));
+      $("skipBtn").addEventListener("click", skipQuestion);
+      $("stopBtn").addEventListener("click", stopQuiz);
+
+      $("resetCountsBtn").addEventListener("click", async () => {
+        if (!confirm("오답/정답/출제 횟수를 모두 Reset할까?")) return;
+        await resetCounts();
+      });
+
+      $("exportBtn").addEventListener("click", exportData);
+      $("importBtn").addEventListener("click", () => $("importFile").click());
+      $("importFile").addEventListener("change", e => {
+        const file = e.target.files[0];
+        if (file) importData(file);
+        e.target.value = "";
+      });
+
+      ["searchInput", "dayFilter", "sortSelect", "reviewWrongMin", "weakMinSelect", "weakDaySelect", "weakSearchInput"].forEach(id => {
+        $(id).addEventListener("input", renderAll);
+        $(id).addEventListener("change", renderAll);
+      });
+    });
+  </script>
 </body>
 </html>

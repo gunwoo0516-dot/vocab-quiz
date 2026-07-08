@@ -470,7 +470,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v2 · login 유지 · Day quiz · Weak words · Search</div>
+      <div class="subtitle">Firebase sync v3 · 기존 단어 Day 수정 지원</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -583,6 +583,18 @@ mortgage / 담보 대출"></textarea>
             </select>
           </div>
         </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label for="bulkChangeDayInput">현재 표시된 단어 Day 일괄 변경</label>
+            <input id="bulkChangeDayInput" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button class="warn require-auth" id="bulkChangeDayBtn" style="width:100%">표시된 단어들을 이 Day로 변경</button>
+          </div>
+        </div>
+        <div class="hint">Search / Day filter로 원하는 단어만 표시한 뒤 일괄 변경할 수 있음.</div>
 
         <div class="stats">
           <div class="stat">
@@ -814,15 +826,15 @@ mortgage / 담보 대출"></textarea>
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // TODO: Firebase console에서 받은 config를 여기에 붙여넣기.
-    const firebaseConfig = {
-      apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
-      authDomain: "vocabapp-19da2.firebaseapp.com",
-      projectId: "vocabapp-19da2",
-      storageBucket: "vocabapp-19da2.firebasestorage.app",
-      messagingSenderId: "890914638546",
-      appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
+  authDomain: "vocabapp-19da2.firebaseapp.com",
+  projectId: "vocabapp-19da2",
+  storageBucket: "vocabapp-19da2.firebasestorage.app",
+  messagingSenderId: "890914638546",
+  appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
+};
+
 
     const DEFAULT_WORDS = [
       { word: "frugal", meaning: "절약하는", day: 1 },
@@ -1024,6 +1036,41 @@ mortgage / 담보 대출"></textarea>
       toast("삭제됨");
     }
 
+    async function updateWordDay(id) {
+      if (!currentUser) return;
+      const w = words.find(x => x.id === id);
+      if (!w) return;
+
+      const input = document.getElementById(`day-edit-${id}`);
+      const newDay = parseDay(input ? input.value : w.day);
+      await saveWordToCloud({ ...w, day: newDay });
+      toast(`${w.word} → Day ${newDay} 저장됨`);
+    }
+
+    async function bulkChangeDisplayedWordsDay() {
+      if (!currentUser) return;
+
+      const targetDay = parseDay($("bulkChangeDayInput").value);
+      const list = filteredWordsForList();
+
+      if (list.length === 0) {
+        toast("변경할 단어가 없음");
+        return;
+      }
+
+      if (!confirm(`현재 표시된 ${list.length}개 단어를 Day ${targetDay}로 변경할까?`)) return;
+
+      const batch = writeBatch(db);
+      for (const w of list) {
+        batch.set(wordDoc(w.id), {
+          day: targetDay,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      }
+      await batch.commit();
+      toast(`${list.length}개 단어를 Day ${targetDay}로 변경함`);
+    }
+
     async function resetCounts() {
       if (!currentUser) return;
       const batch = writeBatch(db);
@@ -1139,6 +1186,8 @@ mortgage / 담보 대출"></textarea>
             <div class="mini">출제 ${w.askedTotal}회 · 맞음 ${w.correctTotal}회 · 틀림 ${w.wrongTotal}회</div>
           </div>
           <div class="btns">
+            <input id="day-edit-${w.id}" type="number" min="1" value="${parseDay(w.day)}" style="width:90px; padding:10px" />
+            <button class="ghost" onclick="updateWordDay('${w.id}')">Day 저장</button>
             <button class="ghost" onclick="deleteWord('${w.id}')">삭제</button>
           </div>
         </div>
@@ -1631,6 +1680,7 @@ mortgage / 담보 대출"></textarea>
     }
 
     window.deleteWord = deleteWord;
+    window.updateWordDay = updateWordDay;
     window.startSingleWordQuiz = startSingleWordQuiz;
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1680,6 +1730,7 @@ mortgage / 담보 대출"></textarea>
       });
 
       $("restoreBtn").addEventListener("click", restoreDefaults);
+      $("bulkChangeDayBtn").addEventListener("click", bulkChangeDisplayedWordsDay);
 
       $("clearBtn").addEventListener("click", async () => {
         if (!confirm("현재 계정의 cloud 단어를 정말 전체 삭제할까?")) return;

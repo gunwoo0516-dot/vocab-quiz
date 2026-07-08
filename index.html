@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v6 · 빈 답 오답 처리</div>
+      <div class="subtitle">Firebase sync v7 · 답 확인 후 다음 문제</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -734,6 +734,7 @@ mortgage / 담보 대출"></textarea>
             </div>
 
             <div class="big-buttons">
+              <button class="good" id="nextQuestionBtn" disabled style="display:none">다음 문제</button>
               <button class="good" id="correctBtn" disabled style="display:none">맞음</button>
               <button class="danger" id="wrongBtn" disabled style="display:none">틀림</button>
             </div>
@@ -1445,8 +1446,11 @@ mortgage / 담보 대출"></textarea>
       $("autoGradeBox").className = "auto-grade";
       $("showAnswerBtn").disabled = false;
       $("autoGradeBtn").disabled = false;
+      $("nextQuestionBtn").disabled = true;
+      $("nextQuestionBtn").style.display = "none";
       $("correctBtn").disabled = true;
       $("wrongBtn").disabled = true;
+      session.awaitingNext = false;
       updateProgress();
     }
 
@@ -1502,6 +1506,11 @@ mortgage / 담보 대출"></textarea>
     async function autoGradeCurrentAnswer() {
       if (!session || !session.currentId) return;
 
+      if (session.awaitingNext) {
+        goToNextAfterAnswer();
+        return;
+      }
+
       const w = words.find(x => x.id === session.currentId);
       if (!w) return;
 
@@ -1515,18 +1524,20 @@ mortgage / 담보 대출"></textarea>
       $("answerBox").classList.add("show");
       $("showAnswerBtn").disabled = true;
       $("autoGradeBtn").disabled = true;
+      $("nextQuestionBtn").disabled = false;
+      $("nextQuestionBtn").style.display = "block";
 
       const box = $("autoGradeBox");
       box.className = `auto-grade show ${isCorrect ? "correct" : "wrong"}`;
       box.innerHTML = isCorrect
-        ? "정답"
-        : "오답";
+        ? "정답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감."
+        : "오답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감.";
 
-      toast(isCorrect ? "정답" : "오답");
-      await grade(isCorrect);
+      await grade(isCorrect, false);
+      session.awaitingNext = true;
     }
 
-    async function grade(isCorrect) {
+    async function grade(isCorrect, moveNext = true) {
       if (!session || !session.currentId || !currentUser) return;
 
       const w = words.find(x => x.id === session.currentId);
@@ -1545,6 +1556,12 @@ mortgage / 담보 대출"></textarea>
       session.done += 1;
 
       await saveWordToCloud(updated);
+      if (moveNext) nextQuestion();
+    }
+
+    function goToNextAfterAnswer() {
+      if (!session) return;
+      session.awaitingNext = false;
       nextQuestion();
     }
 
@@ -1839,6 +1856,7 @@ mortgage / 담보 대출"></textarea>
       $("weakQuizBtn").addEventListener("click", startWeakQuiz);
 
       $("autoGradeBtn").addEventListener("click", autoGradeCurrentAnswer);
+      $("nextQuestionBtn").addEventListener("click", goToNextAfterAnswer);
       $("selfAnswer").addEventListener("keydown", e => {
         if (e.key === "Enter") {
           e.preventDefault();

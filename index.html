@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v9 · 답 확인 단계 고정 · 2026-07-09</div>
+      <div class="subtitle">Firebase sync v10 · Enter는 채점만</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -1444,7 +1444,7 @@ mortgage / 담보 대출"></textarea>
       $("answerBox").innerHTML = answerHtml(w, session.currentDirection);
       $("answerBox").classList.remove("show");
       $("selfAnswer").value = "";
-      $("selfAnswer").disabled = false;
+      $("selfAnswer").readOnly = false;
       $("autoGradeBox").textContent = "";
       $("autoGradeBox").className = "auto-grade";
       $("showAnswerBtn").disabled = false;
@@ -1512,9 +1512,9 @@ mortgage / 담보 대출"></textarea>
     async function autoGradeCurrentAnswer() {
       if (!session || !session.currentId || !currentUser) return;
 
-      // 이미 답 확인 단계라면, 채점 버튼/Enter는 다음 문제로 이동.
+      // 이미 답 확인 단계라면 Enter/채점은 아무 동작도 하지 않음.
+      // 다음 문제 이동은 오직 [다음 문제] 버튼으로만 처리.
       if (session.graded) {
-        goToNextAfterAnswer();
         return;
       }
 
@@ -1532,18 +1532,18 @@ mortgage / 담보 대출"></textarea>
       session.graded = true;
 
       $("answerBox").classList.add("show");
-      $("selfAnswer").disabled = true;
+      $("selfAnswer").readOnly = true;
       $("showAnswerBtn").disabled = true;
-      $("autoGradeBtn").disabled = false;
-      $("autoGradeBtn").textContent = "다음 문제";
+      $("autoGradeBtn").disabled = true;
+      $("autoGradeBtn").textContent = "채점";
       $("nextQuestionBtn").disabled = false;
       $("nextQuestionBtn").style.display = "block";
 
       const box = $("autoGradeBox");
       box.className = `auto-grade show ${isCorrect ? "correct" : "wrong"}`;
       box.innerHTML = isCorrect
-        ? "정답. 아래 실제 답을 확인한 뒤 [다음 문제]를 누르세요."
-        : "오답. 아래 실제 답을 확인한 뒤 [다음 문제]를 누르세요.";
+        ? "정답. 아래 실제 답을 확인한 뒤 [다음 문제] 버튼을 누르세요."
+        : "오답. 아래 실제 답을 확인한 뒤 [다음 문제] 버튼을 누르세요.";
 
       // 기록만 하고 nextQuestion은 호출하지 않는다.
       await recordGradeOnly(isCorrect);
@@ -1571,13 +1571,7 @@ mortgage / 담보 대출"></textarea>
     }
 
     function goToNextAfterAnswer() {
-      if (!session) return;
-
-      // 채점 전이면 빈 답 오답 처리 후 답 확인 단계로 멈춘다.
-      if (!session.graded) {
-        autoGradeCurrentAnswer();
-        return;
-      }
+      if (!session || !session.graded) return;
 
       $("autoGradeBtn").textContent = "채점";
       session.graded = false;
@@ -1879,16 +1873,15 @@ mortgage / 담보 대출"></textarea>
       $("selfAnswer").addEventListener("keydown", e => {
         if (e.key === "Enter") {
           e.preventDefault();
+
+          if (session && session.graded) {
+            return;
+          }
+
           autoGradeCurrentAnswer();
         }
       });
 
-      document.addEventListener("keydown", e => {
-        if (e.key === "Enter" && session && session.graded) {
-          e.preventDefault();
-          goToNextAfterAnswer();
-        }
-      });
       $("showAnswerBtn").addEventListener("click", showAnswer);
       // 자동 채점 후 바로 기록하므로 수동 맞음/틀림 버튼은 사용하지 않음.
       $("skipBtn").addEventListener("click", skipQuestion);

@@ -429,6 +429,30 @@
       padding: 2px 5px;
     }
 
+
+    .auto-grade {
+      display: none;
+      margin: 12px auto 0;
+      padding: 12px 14px;
+      max-width: 680px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .auto-grade.show { display: block; }
+    .auto-grade.correct {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .auto-grade.wrong {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 780px) {
@@ -470,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v3 · 기존 단어 Day 수정 지원</div>
+      <div class="subtitle">Firebase sync v4 · 자동 채점 + 수동 수정</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -698,11 +722,13 @@ mortgage / 담보 대출"></textarea>
             <div class="question" id="questionText">-</div>
             <div class="question-sub" id="questionSub">정답을 생각한 뒤 확인</div>
 
-            <input id="selfAnswer" placeholder="원하면 답을 적어도 됨. 채점은 직접 함." autocomplete="off" />
+            <input id="selfAnswer" placeholder="답 입력 후 Enter 또는 자동 채점" autocomplete="off" />
             <div class="answer" id="answerBox">-</div>
+            <div class="auto-grade" id="autoGradeBox"></div>
 
             <div class="btns" style="justify-content:center">
-              <button class="primary" id="showAnswerBtn">정답 확인</button>
+              <button class="primary" id="autoGradeBtn">자동 채점</button>
+              <button class="ghost" id="showAnswerBtn">정답 확인</button>
               <button class="ghost" id="skipBtn">Skip</button>
               <button class="danger" id="stopBtn">중단</button>
             </div>
@@ -826,15 +852,15 @@ mortgage / 담보 대출"></textarea>
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
-  authDomain: "vocabapp-19da2.firebaseapp.com",
-  projectId: "vocabapp-19da2",
-  storageBucket: "vocabapp-19da2.firebasestorage.app",
-  messagingSenderId: "890914638546",
-  appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
-};
-
+    // TODO: Firebase console에서 받은 config를 여기에 붙여넣기.
+    const firebaseConfig = {
+      apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
+      authDomain: "vocabapp-19da2.firebaseapp.com",
+      projectId: "vocabapp-19da2",
+      storageBucket: "vocabapp-19da2.firebasestorage.app",
+      messagingSenderId: "890914638546",
+      appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
+    };
 
     const DEFAULT_WORDS = [
       { word: "frugal", meaning: "절약하는", day: 1 },
@@ -1415,7 +1441,10 @@ const firebaseConfig = {
       $("answerBox").innerHTML = answerHtml(w, session.currentDirection);
       $("answerBox").classList.remove("show");
       $("selfAnswer").value = "";
+      $("autoGradeBox").textContent = "";
+      $("autoGradeBox").className = "auto-grade";
       $("showAnswerBtn").disabled = false;
+      $("autoGradeBtn").disabled = false;
       $("correctBtn").disabled = true;
       $("wrongBtn").disabled = true;
       updateProgress();
@@ -1428,6 +1457,71 @@ const firebaseConfig = {
       $("showAnswerBtn").disabled = true;
       $("correctBtn").disabled = false;
       $("wrongBtn").disabled = false;
+    }
+
+    function normalizeForCheck(value) {
+      return normalize(value)
+        .toLowerCase()
+        .replace(/[\s\u00A0]+/g, "")
+        .replace(/[.,!?;:'"“”‘’`~()\[\]{}<>]/g, "")
+        .replace(/[·ㆍ]/g, "");
+    }
+
+    function getAnswerCandidates(w, direction) {
+      if (direction === "wordToMeaning") {
+        return [w.meaning, ...splitMeanings(w.meaning)];
+      }
+      return [w.word];
+    }
+
+    function isAutoAnswerCorrect(w, direction, input) {
+      const rawInput = normalize(input);
+      if (!rawInput) return false;
+
+      const normalizedInput = normalizeForCheck(rawInput);
+      const candidates = getAnswerCandidates(w, direction)
+        .map(c => normalize(c))
+        .filter(Boolean);
+
+      const normalizedCandidates = candidates.map(c => normalizeForCheck(c));
+
+      if (normalizedCandidates.includes(normalizedInput)) return true;
+
+      // 뜻을 맞히는 문제는 표현 차이가 많아서 조금 유연하게 인정.
+      // 예: "담보대출" vs "담보 대출", "진술" vs "입출금 내역서 / 성명 / 진술"
+      if (direction === "wordToMeaning" && normalizedInput.length >= 2) {
+        return normalizedCandidates.some(c => {
+          if (!c) return false;
+          return c.includes(normalizedInput) || normalizedInput.includes(c);
+        });
+      }
+
+      return false;
+    }
+
+    function autoGradeCurrentAnswer() {
+      if (!session || !session.currentId) return;
+
+      const w = words.find(x => x.id === session.currentId);
+      if (!w) return;
+
+      const input = $("selfAnswer").value;
+      if (!normalize(input)) {
+        toast("답을 입력해줘");
+        $("selfAnswer").focus();
+        return;
+      }
+
+      const isCorrect = isAutoAnswerCorrect(w, session.currentDirection, input);
+
+      showAnswer();
+      $("autoGradeBtn").disabled = true;
+
+      const box = $("autoGradeBox");
+      box.className = `auto-grade show ${isCorrect ? "correct" : "wrong"}`;
+      box.innerHTML = isCorrect
+        ? "자동 채점 결과: 맞음. 그대로 맞음 버튼을 누르면 기록됨."
+        : "자동 채점 결과: 틀림. 맞는 답이라고 생각하면 맞음 버튼으로 수정 가능.";
     }
 
     async function grade(isCorrect) {
@@ -1742,6 +1836,13 @@ const firebaseConfig = {
       $("resultReviewBtn").addEventListener("click", () => startQuiz("review"));
       $("weakQuizBtn").addEventListener("click", startWeakQuiz);
 
+      $("autoGradeBtn").addEventListener("click", autoGradeCurrentAnswer);
+      $("selfAnswer").addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          autoGradeCurrentAnswer();
+        }
+      });
       $("showAnswerBtn").addEventListener("click", showAnswer);
       $("correctBtn").addEventListener("click", () => grade(true));
       $("wrongBtn").addEventListener("click", () => grade(false));

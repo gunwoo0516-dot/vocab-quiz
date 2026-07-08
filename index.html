@@ -324,7 +324,7 @@
       word-break: break-word;
     }
 
-    .answer.show { display: block; }
+    .answer.show { display: block; border-width: 2px; }
 
     .answer .meaning-chip {
       font-size: 15px;
@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v8 · 채점 후 답 고정</div>
+      <div class="subtitle">Firebase sync v9 · 답 확인 단계 고정 · 2026-07-09</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -1449,10 +1449,12 @@ mortgage / 담보 대출"></textarea>
       $("autoGradeBox").className = "auto-grade";
       $("showAnswerBtn").disabled = false;
       $("autoGradeBtn").disabled = false;
+      $("autoGradeBtn").textContent = "채점";
       $("nextQuestionBtn").disabled = true;
       $("nextQuestionBtn").style.display = "none";
       $("correctBtn").disabled = true;
       $("wrongBtn").disabled = true;
+      session.graded = false;
       updateProgress();
 
       setTimeout(() => $("selfAnswer").focus(), 0);
@@ -1510,7 +1512,7 @@ mortgage / 담보 대출"></textarea>
     async function autoGradeCurrentAnswer() {
       if (!session || !session.currentId || !currentUser) return;
 
-      // 이미 채점한 상태에서 Enter/채점을 다시 누르면 다음 문제로 이동.
+      // 이미 답 확인 단계라면, 채점 버튼/Enter는 다음 문제로 이동.
       if (session.graded) {
         goToNextAfterAnswer();
         return;
@@ -1526,7 +1528,9 @@ mortgage / 담보 대출"></textarea>
         ? isAutoAnswerCorrect(w, session.currentDirection, input)
         : false;
 
-      // 먼저 화면에 결과와 실제 답을 고정해서 보여줌.
+      // 가장 먼저 상태를 고정한다. Firebase 저장보다 먼저 고정해야 화면이 넘어가지 않음.
+      session.graded = true;
+
       $("answerBox").classList.add("show");
       $("selfAnswer").disabled = true;
       $("showAnswerBtn").disabled = true;
@@ -1538,15 +1542,14 @@ mortgage / 담보 대출"></textarea>
       const box = $("autoGradeBox");
       box.className = `auto-grade show ${isCorrect ? "correct" : "wrong"}`;
       box.innerHTML = isCorrect
-        ? "정답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감."
-        : "오답. 답을 확인한 뒤 Enter 또는 다음 문제를 누르면 넘어감.";
+        ? "정답. 아래 실제 답을 확인한 뒤 [다음 문제]를 누르세요."
+        : "오답. 아래 실제 답을 확인한 뒤 [다음 문제]를 누르세요.";
 
-      // 기록만 하고, nextQuestion은 절대 호출하지 않음.
-      await recordGrade(isCorrect);
-      session.graded = true;
+      // 기록만 하고 nextQuestion은 호출하지 않는다.
+      await recordGradeOnly(isCorrect);
     }
 
-    async function recordGrade(isCorrect) {
+    async function recordGradeOnly(isCorrect) {
       if (!session || !session.currentId || !currentUser) return;
 
       const w = words.find(x => x.id === session.currentId);
@@ -1570,8 +1573,8 @@ mortgage / 담보 대출"></textarea>
     function goToNextAfterAnswer() {
       if (!session) return;
 
+      // 채점 전이면 빈 답 오답 처리 후 답 확인 단계로 멈춘다.
       if (!session.graded) {
-        // 아직 채점하지 않은 상태에서 다음 문제 버튼을 누르면 빈 답 오답 처리.
         autoGradeCurrentAnswer();
         return;
       }

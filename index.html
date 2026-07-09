@@ -494,7 +494,7 @@
   <div class="app">
     <header>
       <h1>Vocab Quiz</h1>
-      <div class="subtitle">Firebase sync v10 · Enter는 채점만</div>
+      <div class="subtitle">Firebase sync v11 · Enter로 다음 문제</div>
       <div id="syncStatus" class="status warn">Firebase 설정 필요</div>
     </header>
 
@@ -1512,9 +1512,9 @@ mortgage / 담보 대출"></textarea>
     async function autoGradeCurrentAnswer() {
       if (!session || !session.currentId || !currentUser) return;
 
-      // 이미 답 확인 단계라면 Enter/채점은 아무 동작도 하지 않음.
-      // 다음 문제 이동은 오직 [다음 문제] 버튼으로만 처리.
+      // 이미 답 확인 단계라면 Enter/채점은 다음 문제로 이동.
       if (session.graded) {
+        goToNextAfterAnswer();
         return;
       }
 
@@ -1534,16 +1534,16 @@ mortgage / 담보 대출"></textarea>
       $("answerBox").classList.add("show");
       $("selfAnswer").readOnly = true;
       $("showAnswerBtn").disabled = true;
-      $("autoGradeBtn").disabled = true;
-      $("autoGradeBtn").textContent = "채점";
+      $("autoGradeBtn").disabled = false;
+      $("autoGradeBtn").textContent = "다음 문제";
       $("nextQuestionBtn").disabled = false;
       $("nextQuestionBtn").style.display = "block";
 
       const box = $("autoGradeBox");
       box.className = `auto-grade show ${isCorrect ? "correct" : "wrong"}`;
       box.innerHTML = isCorrect
-        ? "정답. 아래 실제 답을 확인한 뒤 [다음 문제] 버튼을 누르세요."
-        : "오답. 아래 실제 답을 확인한 뒤 [다음 문제] 버튼을 누르세요.";
+        ? "정답. 아래 실제 답을 확인한 뒤 Enter 또는 [다음 문제]를 누르세요."
+        : "오답. 아래 실제 답을 확인한 뒤 Enter 또는 [다음 문제]를 누르세요.";
 
       // 기록만 하고 nextQuestion은 호출하지 않는다.
       await recordGradeOnly(isCorrect);
@@ -1873,12 +1873,15 @@ mortgage / 담보 대출"></textarea>
       $("selfAnswer").addEventListener("keydown", e => {
         if (e.key === "Enter") {
           e.preventDefault();
-
-          if (session && session.graded) {
-            return;
-          }
-
+          e.stopPropagation();
           autoGradeCurrentAnswer();
+        }
+      });
+
+      document.addEventListener("keydown", e => {
+        if (e.key === "Enter" && session && session.graded) {
+          e.preventDefault();
+          goToNextAfterAnswer();
         }
       });
 

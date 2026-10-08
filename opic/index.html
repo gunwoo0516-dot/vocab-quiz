@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OPIc Cards">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>OPIc Sentence Cards</title>
+<style>
+:root{--bg:#f4f5f7;--panel:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--star:#f59e0b;--green:#15803d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+button,input,textarea{font:inherit}.app{max-width:900px;margin:auto;padding:max(18px,env(safe-area-inset-top)) 14px max(28px,env(safe-area-inset-bottom))}
+header{display:flex;justify-content:space-between;gap:14px;align-items:center;margin-bottom:16px}h1{margin:0;font-size:30px}.sub{color:var(--muted);font-size:14px;margin-top:4px}.stats{display:flex;gap:7px;flex-wrap:wrap}.pill{background:white;border:1px solid var(--line);border-radius:999px;padding:7px 10px;font-size:13px}.online{color:var(--green)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#e5e7eb;padding:4px;border-radius:14px;margin-bottom:16px;position:sticky;top:max(8px,env(safe-area-inset-top));z-index:5}.tab{border:0;background:transparent;padding:11px 6px;border-radius:11px;font-weight:800;color:var(--muted)}.tab.active{background:white;color:var(--text)}
+.view{display:none}.view.active{display:block}.panel{background:white;border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:0 12px 35px rgba(17,24,39,.06)}.panel h2{font-size:18px;margin:0 0 13px}.hint,.notice{color:var(--muted);font-size:13px;line-height:1.55}.notice{margin-top:9px;min-height:18px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.seg button,.secondary,.mini{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px;font-weight:700}.seg button.selected{background:#111827;color:#fff;border-color:#111827}.label{display:block;font-size:13px;font-weight:800;margin-bottom:7px}
+.primary{border:0;border-radius:13px;padding:13px;background:#111827;color:#fff;font-weight:850;width:100%}.study-area{display:none}.study-area.active{display:block}.study-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.progress{font-size:14px;color:var(--muted);font-weight:800}.star{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:21px}.star.on{color:var(--star);background:#fffbeb;border-color:#fcd34d}
+.scene{perspective:1200px;min-height:360px;margin-bottom:13px}.card{position:relative;min-height:360px;transform-style:preserve-3d;transition:transform .4s;cursor:pointer}.card.flipped{transform:rotateY(180deg)}.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#fff;border:1px solid var(--line);border-radius:25px;display:flex;align-items:center;justify-content:center;text-align:center;padding:28px 22px;box-shadow:0 14px 40px rgba(17,24,39,.08)}.back{transform:rotateY(180deg)}.face-label{position:absolute;top:19px;left:20px;color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.08em}.sentence{font-size:clamp(23px,5vw,34px);line-height:1.48;font-weight:850;word-break:keep-all}.tap{position:absolute;bottom:18px;color:var(--muted);font-size:12px}.actions{display:grid;grid-template-columns:1fr 1.7fr;gap:9px}.secondary{background:#f9fafb}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}textarea,input{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 12px;outline:none;background:#fff}textarea{min-height:95px;resize:vertical}.row{display:flex;gap:8px;margin-top:9px}.row .primary{flex:1}.toolbar{margin-bottom:10px}.list{display:grid;gap:8px}.item{border:1px solid var(--line);border-radius:14px;padding:12px}.itemtop{display:flex;justify-content:space-between;gap:9px}.ko{font-weight:800;line-height:1.45}.en{color:#4b5563;margin-top:5px;line-height:1.45}.itemactions{display:flex;gap:5px;flex-shrink:0}.mini{padding:6px 8px;font-size:12px}.mini.starred{color:var(--star);background:#fffbeb}.empty{text-align:center;padding:24px;color:var(--muted);border:1px dashed #d1d5db;border-radius:14px}.backup{display:grid;grid-template-columns:1fr 1fr;gap:8px}.loginbox{max-width:460px;margin:0 auto}.loginbox input{margin-bottom:9px}.userline{display:flex;gap:8px;align-items:center;justify-content:space-between}.hidden{display:none!important}
+@media(max-width:640px){header{align-items:flex-start;flex-direction:column}.grid2,.formgrid{grid-template-columns:1fr}.scene,.card{min-height:400px}h1{font-size:27px}.tabs{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<main class="app">
+<header>
+<div><h1>OPIc Sentence Cards</h1><div class="sub">한국어를 보고 영어 문장을 떠올리는 암기 카드</div></div>
+<div class="stats"><span class="pill">전체 <b id="totalCount">0</b></span><span class="pill">★ <b id="favCount">0</b></span><span class="pill" id="syncPill">로그인 필요</span></div>
+</header>
+
+<nav class="tabs">
+<button class="tab active" data-view="study">학습</button>
+<button class="tab" data-view="manage">문장 관리</button>
+<button class="tab" data-view="favorites">즐겨찾기</button>
+<button class="tab" data-view="account">계정</button>
+</nav>
+
+<section class="view active" id="view-study">
+<div class="panel" id="loginRequired"><b>Firebase 로그인 후 문장을 동기화해서 사용할 수 있습니다.</b></div>
+<div class="panel hidden" id="setup"><h2>학습 시작</h2>
+<div class="grid2">
+<div><span class="label">학습 대상</span><div class="seg" id="sourceSel"><button class="selected" data-value="all">전체</button><button data-value="favorites">즐겨찾기</button><button data-value="unstarred">일반</button></div></div>
+<div><span class="label">카드 수</span><div class="seg" id="countSel"><button class="selected" data-value="10">10개</button><button data-value="20">20개</button><button data-value="all">전체</button></div></div>
+</div><div style="height:11px"></div><button class="primary" id="startBtn">랜덤 학습 시작</button><div class="notice" id="studyNotice"></div></div>
+
+<div class="study-area" id="studyArea">
+<div class="study-top"><div class="progress" id="progress">1 / 10</div><button class="star" id="studyStar">☆</button></div>
+<div class="scene"><div class="card" id="card" tabindex="0">
+<div class="face"><div class="face-label">KOREAN</div><div class="sentence" id="front"></div><div class="tap">터치해서 영어 확인</div></div>
+<div class="face back"><div class="face-label">ENGLISH</div><div class="sentence" id="back"></div><div class="tap">다시 터치하면 한국어</div></div>
+</div></div>
+<div class="actions"><button class="secondary" id="endBtn">학습 종료</button><button class="primary" id="nextBtn">다음 문장</button></div>
+</div></section>
+
+<section class="view" id="view-manage">
+<div class="panel"><h2>문장 추가</h2><div class="formgrid"><textarea id="koInput" placeholder="한국어 문장"></textarea><textarea id="enInput" placeholder="English sentence"></textarea></div><div class="row"><button class="primary" id="saveBtn">문장 추가</button><button class="secondary" id="cancelBtn" style="display:none">취소</button></div><div class="notice" id="saveNotice"></div></div>
+<div class="panel"><h2>Bulk 추가</h2><div class="hint">한 줄에 하나씩 <b>한국어 | English</b> 형식</div><textarea id="bulkInput" placeholder="주말에는 여자친구와 시간을 보낸다. | On weekends, I spend time with my girlfriend."></textarea><div style="height:9px"></div><button class="primary" id="bulkBtn">Bulk 추가</button><div class="notice" id="bulkNotice"></div></div>
+<div class="panel"><div class="toolbar"><input id="search" type="search" placeholder="문장 검색"></div><div class="list" id="list"></div></div>
+</section>
+
+<section class="view" id="view-favorites"><div class="panel"><h2>즐겨찾기 문장</h2><div class="hint" style="margin-bottom:10px">외우기 어려운 문장을 ★로 모아두세요.</div><div class="list" id="favList"></div></div></section>
+
+<section class="view" id="view-account">
+<div class="panel loginbox" id="loggedOutBox">
+<h2>로그인</h2>
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<div class="row"><button class="primary" id="loginBtn">로그인</button><button class="secondary" id="signupBtn">회원가입</button></div>
+<div class="notice" id="authNotice"></div>
+</div>
+<div class="panel hidden" id="loggedInBox">
+<h2>계정</h2>
+<div class="userline"><span id="userEmail"></span><button class="secondary" id="logoutBtn">로그아웃</button></div>
+<div class="notice">기존 단어장과 같은 Firebase 계정을 사용하면 PC와 iPhone에서 자동 sync됩니다.</div>
+</div>
+</section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, setPersistence, browserLocalPersistence, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc, writeBatch, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCBMAIxu4ZVk3n0iA-tZavYi6s_-vVx4h4",
+  authDomain: "vocabapp-19da2.firebaseapp.com",
+  projectId: "vocabapp-19da2",
+  storageBucket: "vocabapp-19da2.firebasestorage.app",
+  messagingSenderId: "890914638546",
+  appId: "1:890914638546:web:6c0a28341233d48cbafb0b"
+};
+
+const app=initializeApp(firebaseConfig), auth=getAuth(app), db=getFirestore(app);
+await setPersistence(auth,browserLocalPersistence);
+
+const $=id=>document.getElementById(id);
+let user=null,data=[],unsubscribe=null,editId=null,source="all",count="10",deck=[],idx=0;
+
+function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function sentencesCol(){return collection(db,"users",user.uid,"sentences")}
+function pool(){if(source==="favorites")return data.filter(x=>x.favorite);if(source==="unstarred")return data.filter(x=>!x.favorite);return [...data]}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function item(x){return `<div class="item" data-id="${x.id}"><div class="itemtop"><div><div class="ko">${esc(x.ko)}</div><div class="en">${esc(x.en)}</div></div><div class="itemactions"><button class="mini ${x.favorite?"starred":""}" data-a="star">${x.favorite?"★":"☆"}</button><button class="mini" data-a="edit">수정</button><button class="mini" data-a="del">삭제</button></div></div></div>`}
+function render(){ $("totalCount").textContent=data.length;$("favCount").textContent=data.filter(x=>x.favorite).length;const q=$("search").value.trim().toLowerCase();const shown=data.filter(x=>!q||x.ko.toLowerCase().includes(q)||x.en.toLowerCase().includes(q));$("list").innerHTML=shown.length?shown.map(item).join(""):'<div class="empty">등록된 문장이 없습니다.</div>';const f=data.filter(x=>x.favorite);$("favList").innerHTML=f.length?f.map(item).join(""):'<div class="empty">즐겨찾기한 문장이 없습니다.</div>';if(deck.length)renderCard()}
+function renderCard(){const x=deck[idx],fresh=data.find(y=>y.id===x.id);if(fresh)deck[idx]={...fresh};$("card").classList.remove("flipped");$("front").textContent=deck[idx].ko;$("back").textContent=deck[idx].en;$("progress").textContent=`${idx+1} / ${deck.length}`;const fav=!!data.find(y=>y.id===deck[idx].id)?.favorite;$("studyStar").textContent=fav?"★":"☆";$("studyStar").classList.toggle("on",fav);$("nextBtn").textContent=idx===deck.length-1?"학습 완료":"다음 문장"}
+function start(){let p=pool();if(!p.length){$("studyNotice").textContent=source==="favorites"?"즐겨찾기 문장이 없습니다.":"학습할 문장이 없습니다.";return}const n=count==="all"?p.length:Number(count);deck=shuffle(p).slice(0,Math.min(n,p.length));idx=0;$("studyNotice").textContent=p.length<n?`등록된 ${p.length}개 문장만 학습합니다.`:"";$("setup").style.display="none";$("studyArea").classList.add("active");renderCard()}
+function end(){deck=[];idx=0;$("studyArea").classList.remove("active");$("setup").style.display=""}
+function next(){if(idx>=deck.length-1){const n=deck.length;end();$("studyNotice").textContent=`${n}개 카드 학습 완료`;return}idx++;renderCard()}
+async function star(i){if(!user)return;const x=data.find(y=>y.id===i);if(x)await updateDoc(doc(db,"users",user.uid,"sentences",i),{favorite:!x.favorite,updatedAt:serverTimestamp()})}
+async function addOrEdit(){if(!user)return;const ko=$("koInput").value.trim(),en=$("enInput").value.trim();if(!ko||!en)return;if(editId){await updateDoc(doc(db,"users",user.uid,"sentences",editId),{ko,en,updatedAt:serverTimestamp()})}else{await addDoc(sentencesCol(),{ko,en,favorite:false,createdAt:serverTimestamp(),updatedAt:serverTimestamp()})}editId=null;$("koInput").value="";$("enInput").value="";$("saveBtn").textContent="문장 추가";$("cancelBtn").style.display="none";$("saveNotice").textContent="저장되었습니다."}
+function edit(i){const x=data.find(y=>y.id===i);if(!x)return;editId=i;$("koInput").value=x.ko;$("enInput").value=x.en;$("saveBtn").textContent="수정 저장";$("cancelBtn").style.display="";view("manage");scrollTo({top:0,behavior:"smooth"})}
+function cancel(){editId=null;$("koInput").value="";$("enInput").value="";$("saveBtn").textContent="문장 추가";$("cancelBtn").style.display="none"}
+async function bulk(){if(!user)return;const lines=$("bulkInput").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);const good=[];let skipped=0;for(const line of lines){const p=line.indexOf("|");if(p<0){skipped++;continue}const ko=line.slice(0,p).trim(),en=line.slice(p+1).trim();if(!ko||!en){skipped++;continue}good.push({ko,en})}if(!good.length){$("bulkNotice").textContent="추가할 수 있는 문장이 없습니다.";return}
+let added=0;
+for(let start=0;start<good.length;start+=450){const batch=writeBatch(db);for(const x of good.slice(start,start+450)){const ref=doc(sentencesCol());batch.set(ref,{ko:x.ko,en:x.en,favorite:false,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});added++}await batch.commit()}
+$("bulkNotice").textContent=`${added}개 추가${skipped?` · ${skipped}개 형식 오류`:""}`;$("bulkInput").value=""}
+async function del(i){const x=data.find(y=>y.id===i);if(x&&confirm(`삭제할까요?\n\n${x.ko}`))await deleteDoc(doc(db,"users",user.uid,"sentences",i))}
+function view(n){document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.view===n));document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));$("view-"+n).classList.add("active")}
+function subscribe(){if(unsubscribe)unsubscribe();const q=query(sentencesCol(),orderBy("createdAt","desc"));unsubscribe=onSnapshot(q,s=>{data=s.docs.map(d=>({id:d.id,...d.data()}));render();$("syncPill").textContent="Firebase sync";$("syncPill").classList.add("online")},e=>{$("syncPill").textContent="Sync 오류";console.error(e)})}
+
+onAuthStateChanged(auth,u=>{user=u;if(u){$("loggedOutBox").classList.add("hidden");$("loggedInBox").classList.remove("hidden");$("userEmail").textContent=u.email;$("loginRequired").classList.add("hidden");$("setup").classList.remove("hidden");$("syncPill").textContent="연결 중…";subscribe()}else{if(unsubscribe){unsubscribe();unsubscribe=null}data=[];render();$("loggedOutBox").classList.remove("hidden");$("loggedInBox").classList.add("hidden");$("loginRequired").classList.remove("hidden");$("setup").classList.add("hidden");$("studyArea").classList.remove("active");$("syncPill").textContent="로그인 필요";$("syncPill").classList.remove("online")}});
+
+$("loginBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);$("authNotice").textContent=""}catch(e){$("authNotice").textContent="로그인 실패: "+e.message}};
+$("signupBtn").onclick=async()=>{try{await createUserWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);$("authNotice").textContent=""}catch(e){$("authNotice").textContent="회원가입 실패: "+e.message}};
+$("logoutBtn").onclick=()=>signOut(auth);
+
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>view(b.dataset.view));
+function seg(id,cb){$(id).onclick=e=>{const v=e.target.dataset.value;if(!v)return;[...$(id).querySelectorAll("button")].forEach(b=>b.classList.toggle("selected",b.dataset.value===v));cb(v)}}
+seg("sourceSel",v=>source=v);seg("countSel",v=>count=v);
+$("startBtn").onclick=start;$("endBtn").onclick=end;$("nextBtn").onclick=next;$("card").onclick=()=>$("card").classList.toggle("flipped");$("studyStar").onclick=()=>deck.length&&star(deck[idx].id);
+$("saveBtn").onclick=addOrEdit;$("cancelBtn").onclick=cancel;$("bulkBtn").onclick=bulk;$("search").oninput=render;
+function listClick(e){const el=e.target.closest(".item"),a=e.target.dataset.a;if(!el||!a)return;if(a==="star")star(el.dataset.id);if(a==="edit")edit(el.dataset.id);if(a==="del")del(el.dataset.id)}
+$("list").onclick=listClick;$("favList").onclick=listClick;
+render();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("./service-worker.js").catch(()=>{}));
+</script>
+</body></html>

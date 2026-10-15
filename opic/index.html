@@ -108,7 +108,7 @@ let autoSpeak=localStorage.getItem("opicAutoSpeak")==="on";
 let speechRate=Number(localStorage.getItem("opicSpeechRate"))||1;
 let preferredVoice=null;
 let categories=[],unsubscribeCategories=null;
-const categoryDocId="__opic_categories__";
+const categoryDocId="opic-category-metadata-v1";
 // Keep category metadata within the existing per-user sentences permission scope.
 function categoryRef(){return doc(db,"users",user.uid,"sentences",categoryDocId)}
 function categoryNames(){return [...new Set([...categories,...data.map(x=>x.category).filter(Boolean)])].sort((a,b)=>a.localeCompare(b,"ko"))}
